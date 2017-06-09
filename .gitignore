@@ -1,0 +1,8 @@
+/dist/
+/target/
+jsbml.log
+/bin/
+**/.DS_Store
+**/.classpath
+.settings/
+**/.project

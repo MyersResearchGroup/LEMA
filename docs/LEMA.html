@@ -1,0 +1,1415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.81">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+
+
+<title> LEMA User's Manual</title>
+ 
+<h1 align="center">LEMA User's Manual </h1>
+
+<div class="p"><!----></div>
+
+<h3 align="center">Chris J. Myers, Satish Batchu, Kevin Jones, Scott Little, Nicholas Seegmiller, Robert Thacker, David Walter, Zhen Zhang </h3>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ 
+<div class="p"><!----></div>
+
+<h1>Contents </h1><a href="#tth_sEc1"
+>1&nbsp; Introduction</a><br />
+<a href="#tth_sEc2"
+>2&nbsp; Project Management</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.1"
+>2.1&nbsp; Creating and Opening Projects</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.2"
+>2.2&nbsp; Creating Models and Graphs</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.3"
+>2.3&nbsp; Importing Models</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.4"
+>2.4&nbsp; Editing Project Objects</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.5"
+>2.5&nbsp; Viewing Project Objects</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.6"
+>2.6&nbsp; Creating Tool Views</a><br />
+<a href="#tth_sEc3"
+>3&nbsp; LHPN Editor</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.1"
+>3.1&nbsp; Places</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.2"
+>3.2&nbsp; Transitions</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.2.1"
+>3.2.1&nbsp; Assignments</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.3"
+>3.3&nbsp; Variables</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.4"
+>3.4&nbsp; Control Flow</a><br />
+<a href="#tth_sEc4"
+>4&nbsp; Text Editor</a><br />
+<a href="#tth_sEc5"
+>5&nbsp; Verification View</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.1"
+>5.1&nbsp; Basic Options</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.2"
+>5.2&nbsp; Advanced Options</a><br />
+<a href="#tth_sEc6"
+>6&nbsp; Learn View</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.1"
+>6.1&nbsp; Data Manager</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2"
+>6.2&nbsp; Learn Tool</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.1"
+>6.2.1&nbsp; Basic Options</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.2"
+>6.2.2&nbsp; Advanced Options</a><br />
+<a href="#tth_sEc7"
+>7&nbsp; TSD Graph Editor</a><br />
+<a href="#tth_sEc8"
+>8&nbsp; Preferences</a><br />
+<a href="#tth_sEc9"
+>9&nbsp; Labeled Hybrid Petri Net Format</a><br />
+<a href="#tth_sEc10"
+>10&nbsp; Time Series Data Format</a><br />
+<a href="#tth_sEc11"
+>11&nbsp; List of Hot Keys</a><br />
+<a href="#tth_sEc12"
+>12&nbsp; Reporting Bugs and Feature Requests</a><br />
+<a href="#tth_sEc13"
+>13&nbsp; Credits</a><br />
+
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Introduction</h2>
+
+<div class="p"><!----></div>
+LEMA has been developed for the formal verification of analog and mixed-signal (AMS) circuits.  LEMA includes the following tools: 
+
+<div class="p"><!----></div>
+
+<ul>
+<li> LHPN Editor - a tool to create a model using the 
+<em>labeled hybrid Petri net</em> (LHPN) format.<br />
+The LHPN format is described in
+<A HREF="http://www.async.ece.utah.edu/publications">
+David Walter and Scott Little's PhD dissertations
+</A>
+(UofUtah 2007/2008).
+<div class="p"><!----></div>
+</li>
+
+<li> Verification tool - a tool to perform model checking on a LHPN model.  The tool can use DBM, BDD, or SMT to represent the state space.
+These model checkers are described in
+<A HREF="http://www.async.ece.utah.edu/publications">
+David Walter and Scott Little's PhD dissertations
+</A>
+(UofUtah 2007/2008).
+<div class="p"><!----></div>
+</li>
+
+<li> Learn tool - a tool to generate LHPN, VHDL-AMS and Verilog-AMS models from simulation data.<br />
+This tool is described in 
+<A HREF="http://www.async.ece.utah.edu/publications">
+Scott Little's PhD Dissertation
+</A>
+(UofUtah 2008).
+<div class="p"><!----></div>
+</li>
+
+<li> TSD Graph Editor- a tool to visualize TSD files. 
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Project Management</h2>
+
+<div class="p"><!----></div>
+A project is a collection of models, analysis views, learn
+views, and graphs.  As shown below, <tt>LEMA</tt> displays all project
+files on the left, the open models, views, and graphs on the
+right, and a log of all external commands on the bottom.
+The menu bar is located on the top of the window in the Windows and
+Linux versions.  It is located on the top of the screen in the MacOS version.
+
+<center>
+<img src="screenshots/LEMA.png" alt="screenshots/LEMA.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Creating and Opening Projects</h3>
+
+<div class="p"><!----></div>
+To create a new project, select New &#8594; Project from the File
+menu as shown below. You will then be prompted to browse to a desired location
+and to give a name to the project directory. After you do this,
+click the new button and a new project directory will be created.
+To open a project, select Open &#8594; Project from the File menu.
+You will then be prompted to browse to a project directory to
+open, and clicking open will open the project. You may also open
+a project by selecting one of your five most recently opened
+projects by selecting the project name shown in the File drop
+down menu shown below. 
+
+<center>
+<img src="screenshots/projectLema.png" alt="screenshots/projectLema.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Creating Models and Graphs</h3>
+
+<div class="p"><!----></div>
+After you have created or opened a project, you can create a
+new model or graph to add to the project.  To create a new 
+VHDL-AMS model, select  New &#8594; VHDL-AMS Model from the
+File menu as shown below. You will then be prompted to give a model id. At this
+point, a simple text editor will open in a new tab. To create a new LHPN model 
+(see Section&nbsp;<a href="#LHPN">9</a>), select New &#8594; Labeled Hybrid Petri Net from
+the File menu. You will then be prompted to give a model id.  At this point, an
+LHPN editor (see Section&nbsp;<a href="#LHPNEdit">3</a>) will open in a new tab. To create a new
+Spice model, select New &#8594; Spice Circuit from the File menu.  You
+will then be prompted to give a model id.  At this point, a simple text editor
+will open in a new tab.  To create a new TSD graph, select New &#8594; TSD
+Graph from the File menu. You will then
+be prompted to give a name to the TSD graph.  At this point, a TSD graph editor
+(see Section&nbsp;<a href="#TSDEdit">7</a>) will open in a new tab.   Once a model or graph is 
+created, it can be opened again later by right clicking on the object in the
+project window and selecting "Edit", or alternatively
+double-clicking on the object.
+
+<center>
+<img src="screenshots/newModelLema.png" alt="screenshots/newModelLema.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Importing Models</h3>
+
+<div class="p"><!----></div>
+You can import into the current working project VHDL-AMS models
+or LHPNs created by other programs or stored in other projects. 
+To import a VHDL-AMS model, select Import &#8594; VHDL-AMS Model
+from the File menu as shown below. You will then be able to browse to
+find a model to import.  After  selecting the desired model, click the 
+import button to bring the model into the project. 
+To import an LHPN, the procedure is the same except use the 
+Import &#8594; LHPN Model option.  Before bringing the model
+into the project, it will be edited to a format consistent with this tool.  
+
+<center>
+<img src="screenshots/importLema.png" alt="screenshots/importLema.png" />
+</center> 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.4">
+2.4</a>&nbsp;&nbsp;Editing Project Objects</h3>
+
+<div class="p"><!----></div>
+All project objects can be modified by highlighting the object
+and using a right mouse click to open a menu of options as shown
+below. Using this menu, every type of object can be copied, renamed, or
+deleted. For an LHPN, the "View/Edit" option opens the
+model in an LHPN editor (see Section&nbsp;<a href="#LHPNEdit">3</a>). For a VHDL-AMS model,
+the "View/Edit" option opens the model in a simple text editor. For a TSD
+graph, the "View/Edit" 
+option opens the TSD graph in a TSD graph editor (see Section&nbsp;<a href="#TSDEdit">7</a>). 
+For a probability graph, the "View/Edit" option opens
+the probability graph in a histogram editor 
+(see Section&nbsp;). 
+For a verification view, the "Open Verification View" option opens the
+verification view (see Section&nbsp;<a href="#Verification">5</a>). For a learn view, the
+"Open Learn View" option opens the learn view (see Section&nbsp;<a href="#Learn">6</a>).
+
+<div class="p"><!----></div>
+
+<center>
+<table>
+<tr><td align="center"><img src="screenshots/modLHPN.png" alt="screenshots/modLHPN.png" /> </td><td align="center"></td><td align="center"><img src="screenshots/modVHDL.png" alt="screenshots/modVHDL.png" /> </td></tr>
+<tr><td align="center"></td></tr>
+<tr><td align="center"><img src="screenshots/modVerify.png" alt="screenshots/modVerify.png" /> </td><td align="center"></td><td align="center"><img src="screenshots/modLearnLema.png" alt="screenshots/modLearnLema.png" />
+</td></tr></table>
+
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.5">
+2.5</a>&nbsp;&nbsp;Viewing Project Objects</h3>
+
+<div class="p"><!----></div>
+An LHPN can also be viewed using 
+<A HREF="http://www.graphviz.org/">
+GraphViz's
+</A>
+dotty program  by right clicking on the model you want to view and
+selecting the "View Model" option. A VHDL-AMS model may be converted into an
+LHPN and viewed using the same "View Model" option.
+
+<div class="p"><!----></div>
+
+<center>
+<table>
+<tr><td align="center"><img src="screenshots/modLHPN.png" alt="screenshots/modLHPN.png" /> </td><td align="center"></td><td align="center"><img src="screenshots/modVHDL.png" alt="screenshots/modVHDL.png" /> </td></tr>
+<tr><td align="center"></td></tr>
+<tr><td align="center"><img src="screenshots/modVerify.png" alt="screenshots/modVerify.png" /> </td><td align="center"></td><td align="center"><img src="screenshots/modLearnLema.png" alt="screenshots/modLearnLema.png" />
+</td></tr></table>
+
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.6">
+2.6</a>&nbsp;&nbsp;Creating Tool Views</h3>
+
+<div class="p"><!----></div>
+To perform verification or learning, right click on a model and
+select "Create Verification View" (see Section&nbsp;<a href="#Verification">5</a>)to perform
+analysis or "Create Learn View" (see Section&nbsp;<a href="#Learn">6</a>)
+to perform learning. A verification or learn view may also be opened by
+selecting the model in the file tree and selecting Learn or Verification from
+the Tools menu.  You will then be prompted to give a name to
+your verification or learn view. After a name is entered, a tab with
+the newly created view will open. Once a view is created, it can
+be opened again later by right clicking on an analysis directory
+and selecting "Open Verification/Learn View" or alternatively
+double-clicking on the view.
+
+<center>
+
+<table>
+<tr><td align="center"><img src="screenshots/createVerification.png" alt="screenshots/createVerification.png" /> </td><td align="center"></td><td align="center"><img src="screenshots/createLearnLema.png" alt="screenshots/createLearnLema.png" />
+</td></tr></table>
+
+</center>
+
+<div class="p"><!----></div>
+When you create a verification view from a VHDL model, an LHPN is
+automatically created for verification.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;<a name="LHPNEdit">
+</a>LHPN Editor</h2>
+
+<div class="p"><!----></div>
+The LHPN editor as shown below allows the user to create or modify an LHPN
+model of an analog or mixed-signal circuit.  An LHPN model includes
+places (see Section&nbsp;<a href="#places">3.1</a>),
+transitions (see Section&nbsp;<a href="#transitions">3.2</a>), 
+variables (see Section&nbsp;<a href="#variables">3.3</a>), and
+control flow (see Section&nbsp;<a href="#controlFlow">3.4</a>).
+Each of these items can be added, removed, or edited. 
+To add a new item, click on the appropriate add button. You
+will then be prompted to provide a unique id and some properties
+for this new item (as described below). After you have filled out
+all of the required fields, click add and the new item will be
+added to the LHPN.
+To remove an item from the model, select that item and click
+the remove button. The item will then be removed from the model.
+However, if you try to remove an item that is being used 
+(for example, a variable that is assigned in a transition), you will first have 
+to remove its use.
+To edit an existing item, select that item from the list and
+click the edit button. An editing window will open and you will
+be able to change the properties of that item. When you are done
+editing this item, click save to save the changes to the item. 
+After the model is complete, press the Save LHPN button to store
+the model. The Save As button can also be used to store the
+model, but in this case, a new model ID will be requested and the
+model will be saved using that ID. 
+
+<center>
+<img src="screenshots/LHPNedit.png" alt="screenshots/LHPNedit.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;<a name="places">
+</a>Places</h3>
+
+<div class="p"><!----></div>
+Places define a certain characteristic of a circuit, according to the
+definition of Petri nets.  It may be noted that the LEMA tool does not support
+implicit places in its LHPNs.  If an LHPN with implicit places is imported into
+the tool, the implicit places are automatically explicitly declared in the
+imported net. 
+As shown below, a place has the following fields:
+
+<ul>
+<li> ID: a unique ID composed of only alphanumeric characters and 
+      underscores.
+<div class="p"><!----></div>
+</li>
+
+<li> Initial Marking: a boolean describing whether the place is initially marked.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<center>
+<img src="screenshots/place.png" alt="screenshots/place.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;<a name="transitions">
+</a>Transitions</h3>
+
+<div class="p"><!----></div>
+Transitions define events in the petri nets.  In the case of LHPNs, they are 
+elaborated by labels attached to the transitions, which are defined by included
+fields.
+As shown below, a transition has the following fields:
+
+<ul>
+<li> ID: a unique ID composed of only alphanumeric characters and 
+       underscores.
+<div class="p"><!----></div>
+</li>
+
+<li> Delay Lower Bound: the minimum amount of time that the transition can wait
+       after it is enabled before it fires.  This can be written as an 
+       expression.
+<div class="p"><!----></div>
+</li>
+
+<li> Delay Upper Bound: the maximum amount of time that the transition can wait
+       after it is enabled before it fires.  This can also be an expression.
+<div class="p"><!----></div>
+</li>
+
+<li> Transition Rate: an exponential function expressing the probability that
+       the transition will fire.  this is currently not enabled but will be
+       included in later releases.
+<div class="p"><!----></div>
+</li>
+
+<li> Enabling Condition: the condition that must evaluate to true in order for
+       the transition to be enabled.
+<div class="p"><!----></div>
+</li>
+
+<li> Assignments: assignments to boolean, continuous and integer variables.
+       This also includes rate assignments to continuous variables. This list
+       is edited using the "Add Assignment", "Edit Assignment", and
+       "Remove Assignment" buttons.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<center>
+<img src="screenshots/transition.png" alt="screenshots/transition.png" />
+</center>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc3.2.1">
+3.2.1</a>&nbsp;&nbsp;<a name="assignments">
+</a>Assignments</h4>
+
+When an assignment is added to the labeling function of a transition, the user
+is prompted to define the assignment that is to take place.  An assignment may
+be made to the value of any variable or to the rate of a continuous variable.
+An assignment consists of the following fields:
+
+<ul>
+<li> Variable: the variable that is being assigned.
+<div class="p"><!----></div>
+</li>
+
+<li> Assignment Lower Bound: the lowest value that the assigned value can take.
+       This may be defined in terms of an expression parseable by ATACS.
+<div class="p"><!----></div>
+</li>
+
+<li> Assignment Upper Bound: the greatest value that the assigned value can 
+       take.  This also may be defined in terms of an expression.
+<div class="p"><!----></div>
+</li>
+
+<li> Rate Assignment: whether or not the assignment is being made to the value
+       or rate of a continuous variable (Note: this field is disabled for
+       non-continous variables).
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<center>
+<img src="screenshots/assignment.png" alt="screenshots/assignment.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.3">
+3.3</a>&nbsp;&nbsp;<a name="variables">
+</a>Variables</h3>
+
+<div class="p"><!----></div>
+Variables represent the continuous, boolean, or integer signals used in an LHPN.
+When a variable is created, the user will be prompted to input which type of
+variable is being created.
+As shown below, a variable contains the following fields:
+
+<ul>
+<li> ID: a unique ID composed only of alphanumeric characters and 
+       underscores.
+<div class="p"><!----></div>
+</li>
+
+<li> Initial Lower Bound: the lower bound of the variable's initial value.
+<div class="p"><!----></div>
+</li>
+
+<li> Initial Upper Bound: the upper bound of the variable's initial value.
+<div class="p"><!----></div>
+</li>
+
+<li> Mode: whether the variable is an inpout or an output to the circuit
+       (Note: only available for boolean variables).
+<div class="p"><!----></div>
+</li>
+
+<li> Rate Lower Bound: the lower bound of the variable's initial rate 
+       (Note: only available for continuous variables).
+<div class="p"><!----></div>
+</li>
+
+<li> Rate Upper Bound: the upper bound of the variable's initial rate
+       (Note: only available for continuous variables).
+<div class="p"><!----></div>
+</li>
+</ul>
+To change a variable from one type to another, the user must remove the initial
+variable and then add a new variable with the same id of the desired type.
+
+<center>
+<img src="screenshots/contVariable.png" alt="screenshots/contVariable.png" />
+<img src="screenshots/boolVariable.png" alt="screenshots/boolVariable.png" />
+<img src="screenshots/intVariable.png" alt="screenshots/intVariable.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.4">
+3.4</a>&nbsp;&nbsp;<a name="controlFlow">
+</a>Control Flow</h3>
+
+<div class="p"><!----></div>
+The control flow describes the edges in the LPN, or the connections between
+places and transitions.  The edges in the net are referred to as "movements"
+within the tool and describe a directional edge between nodes of the graph.
+As shown below, a movement includes the following fields:
+
+<ul>
+<li> From: the place or transition at the leading end of the edge, i.e. where
+       the movement originates.
+<div class="p"><!----></div>
+</li>
+
+<li> To: the place or transition  (of the type not used in the From field) at
+       the trailing end of the edge.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<center>
+<img src="screenshots/movement.png" alt="screenshots/movement.png" />
+</center>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;<a name="TextEdit">
+</a>Text Editor</h2>
+
+<div class="p"><!----></div>
+A simple text editor is available for viewing VHDL-AMS models and spice decks.
+This editor does not have many features, so the user may desire to use a  more
+robust external text editor.  To do so, select the Preferences option from the
+Edit menu, click on the "Use External Viewer" option and enter the name of
+the desired external text editor in the space provided.  Every time that a 
+VHDL-AMS or Spice model is opened, it will be opened in the external text 
+editor.
+
+<center>
+<img src="screenshots/VHDLedit.png" alt="screenshots/VHDLedit.png" />
+</center>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;<a name="Verification">
+</a>Verification View</h2>
+
+<div class="p"><!----></div>
+The verification view is used to verify the property stated in the LHPN model.
+ The verification view as shown below includes tabs for 
+basic options (see Section&nbsp;<a href="#basOptions">5.1</a>),  and
+advanced options (see Section&nbsp;<a href="#advOptions">5.2</a>).
+
+<center>
+<img src="screenshots/verificationView.png" alt="screenshots/verificationView.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;<a name="basOptions">
+</a>Basic Options</h3>
+
+<div class="p"><!----></div>
+This tab includes the model being verified, basic timing options, and other
+basic user options.
+&lt;ADD CITATION?&#62; 
+
+<div class="p"><!----></div>
+The first line on the basic options panel is the filename of the LHPN being
+verified.  The LHPN verified is the one saved in the file location at the time
+of verification.
+
+<div class="p"><!----></div>
+The first set of radio buttons in this tab specifies the
+timing method to be used in the verification.
+
+<ul>
+<li> BDD specifies binary decision diagram modeling.
+<div class="p"><!----></div>
+</li>
+
+<li> DBM [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> SMT [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+The other options refer to miscellaneous ATACS options.
+
+<ul>
+<li> Dot [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Verbose [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;<a name="advOptions">
+</a>Advanced Options</h3>
+
+<div class="p"><!----></div>
+This tab includes compilation options, advanced timing options, other advanced
+options and a user specification for a BDD Linkspace size.  The first set of
+check boxes enables or disables compilations options.
+
+<ul>
+<li> New Tab [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Post Processing [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Redundancy check [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Don't Use Transform 2 [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Expand Rate [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+The next set of check boxes allows the user acces to more advanced timing
+options.
+
+<ul>
+<li> Generate RG [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Subsets [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Supersets [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Infinity Optimization [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Orbits Match [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Interleave [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Prune [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Disabling [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> No fail [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Keep going [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Expand LHPN [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+The other advanced options include
+
+<ul>
+<li> No checks [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> Reduction [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+
+<li> BDD Linkspace Size [NEEDS DESCRIPTION]
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<center>
+<img src="screenshots/advOptions.png" alt="screenshots/advOptions.png" />
+</center>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;<a name="Learn">
+</a>Learn View</h2>
+
+<div class="p"><!----></div>
+The learn view is used to generate an LHPN from time series data. The learn 
+view includes tabs for a data manager (see Section&nbsp;<a href="#dataManager">6.1</a>), 
+a learn tool (see Section&nbsp;<a href="#learnTool">6.2</a>), and a 
+TSD graph editor (see Section&nbsp;<a href="#TSDEdit">7</a>).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;<a name="dataManager">
+</a>Data Manager</h3>
+
+<div class="p"><!----></div>
+The data manager as shown below is used to both enter time series
+experimental data as well as bring data
+into the learn view.  The Add button is used to create a new data
+file. After pressing this button, enter the name of the new data
+file, and then enter the data for this file using the data editor
+to the right.  The Remove button deletes all highlighted files.
+Note that after highlighting one file, you can use the ctrl key
+to highlight additional files or the shift key to highlight a
+range of files.  The Rename button is used to change the name of a
+data file. The Copy button copies a data file. The Copy From View
+button brings up a list of all analysis and learn views in the
+current project, and data from the selected view will be copied
+into this learn view.  Finally, the Import button brings up a file
+browser, and it allows you to import a data file from outside
+this project.  These files can be in time series data (TSD) format
+(see Section&nbsp;<a href="#TSD">10</a>), comma separated value (CSV) format, or tab
+delimited format (DAT). 
+
+<div class="p"><!----></div>
+The contents of the data file highlighted on the left appear in the
+data editor on the right.  Individual data entries can be modified,
+new data points can be added using the Add Data Point button, data 
+points can be removed using the Remove Data Point button, and data
+points can be copied using the Copy Data Point button.  When you are
+satisfied with all your changes, you should press the Save button
+to record your changes.
+
+<center>
+<img src="screenshots/dataManagerLema.png" alt="screenshots/dataManagerLema.png" />
+</center>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2">
+6.2</a>&nbsp;&nbsp;<a name="learnTool">
+</a>Learn Tool</h3>
+
+<div class="p"><!----></div>
+The learn tool is used to generate abstract models from the 
+simulation data entered through the data manager described above. To 
+use this learn tool, adjust the basic options(see Section 
+&nbsp;<a href="#learnBasOptions">6.2.1</a>) and advanced options(see Section 
+&nbsp;<a href="#learnAdvOptions">6.2.2</a>), if desired, then press the Save and Learn button. 
+The resulting abstract models in the form of Labeled Hybrid Petri Net
+ (see Section&nbsp;<a href="#LHPN">9</a>),VHDL-AMS and Verilog-AMS can be viewed by 
+clicking appropriate options in the View Menu. The resulting circuit is 
+specified using our Labeled Hybrid Petri Net Format (see Section&nbsp;<a href="#LHPN">9</a>)
+ and is shown graphically using GraphViz's Dotty tool.  There are also 
+menu options to save the parameters without learning, view the last learned 
+models, save the generated models into the project, and view the last run
+log. 
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.2.1">
+6.2.1</a>&nbsp;&nbsp;<a name="learnBasOptions">
+</a>Basic Options</h4>
+
+<div class="p"><!----></div>
+The learning options shown below are as follows:
+
+<ul>
+<li> Iterations of Optimization Algorithm (default=10): <br />
+sets the number of iterations that will be run of the optimization algorithm 
+used when the bins are automatically generated.  More iterations can improve 
+the generated bin levels but can also substantially increase run time.
+<div class="p"><!----></div>
+</li>
+
+<li> Number of Bins (default=4): <br />
+The number of bins value specifies how many values the
+encoded time series data can assume.
+<div class="p"><!----></div>
+</li>
+
+<li> Assertion to be Verified: <br />
+The property that the generated LHPN must satisfy has to be provided
+in this field. This is the property that would be verified by the
+Verification tool.
+<div class="p"><!----></div>
+</li>
+
+<li> Equal Data Per Bins / Equal Spacing of Bins: <br />
+This radio button selects whether the auto generated levels
+should be determined by equaling dividing the data between the
+bins or by equally dividing the range of the data.
+<div class="p"><!----></div>
+</li>
+
+<li> Use Auto Generated Levels / Use User Generated Levels: <br />
+This radio button allows the user to select whether they want
+the levels separating the bins to be auto generated or the user
+would like to provide them.
+<div class="p"><!----></div>
+</li>
+
+<li> When using user provided levels, the Suggest Levels
+button will provide the levels that would have been auto
+generated as a suggestion. These levels can then edited by the
+user.  The number of bins for each species can also be individually adjusted.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+<center><img src="screenshots/learnBasicLema.png" alt="screenshots/learnBasicLema.png" />
+</center>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.2.2">
+6.2.2</a>&nbsp;&nbsp;<a name="learnAdvOptions">
+</a>Advanced Options</h4>
+
+<div class="p"><!----></div>
+The following parameters which are used to configure the model generation 
+process can be specified through the advanced options tab.
+
+<ul>
+<li> Windowsize(default = -1) : <br />Rates are calculated between points 
+that are separated by the number of points specified in this field.If 
+window size = -1, then rates are calculated using just the starting and
+ ending points of the bins.
+<div class="p"><!----></div>
+</li>
+
+<li> Pathlength(default = 15): <br />If Windowsize = -1, then pathlength 
+specifies the minimum number of consecutive timepoints which should be
+ in the same region for that region to be eligible for rate calculation.
+<div class="p"><!----></div>
+</li>
+
+<li> Epsilon(default = 0.1): <br />A variable is considered to be constant
+ if it is within the epsilon bound of a value for certain time.
+<div class="p"><!----></div>
+</li>
+
+<li> Absolute Time: <br />This checkbox determines whether a variable is 
+considered constant based on the amount of time or based on the number
+ of time points it stays within the epsilon bound.
+<div class="p"><!----></div>
+</li>
+
+<li> DMVC Run Time(default = 5us): <br />If absolute time is checked, DMVC
+ run time(described in 
+<A HREF="http://www.async.ece.utah.edu/publications">
+Scott Little's PhD Dissertation
+</A> 
+)determines the minimum duration for which a variable has to be
+ constant so as to ensure that this duration is added to the total time 
+where the variable is constant.
+<div class="p"><!----></div>
+</li>
+
+<li> DMVC Run Length(default = 15): <br />If absolute time is not selected,
+ DMVC run length determines the minimum number of timepoints for which a
+ variable has to be constant so as to ensure that this duration is added
+ to the total time where the variable is constant.
+<div class="p"><!----></div>
+</li>
+
+<li> Fraction(default = 0.8): <br />A decimal value representing the fraction
+ of the total trace that must be constant for the variable to qualify to 
+be Discrete multi-valued continuous(DMVC).
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+<center><img src="screenshots/learnAdvLema.png" alt="screenshots/learnAdvLema.png" />
+</center>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;<a name="TSDEdit">
+</a>TSD Graph Editor</h2>
+
+<div class="p"><!----></div>
+The TSD graph editor appears as a tab in the learn
+view.  TSD graphs can also be created at the top-level of the project
+to allow you to integrate results from several learn
+views. These graphs can be created using the New &#8594; TSD Graph
+menu option. Once created, they can be viewed and edited by double
+clicking on the graph in the project window.  An example graph is
+shown below.
+
+<center>
+<img src="screenshots/TSDgraphLema.png" alt="screenshots/TSDgraphLema.png" />
+</center>
+
+<div class="p"><!----></div>
+In the TSD graph editor shown below,
+a graph is created by double clicking on the graph. You can then set
+various parameters and select what values you would like to have
+graphed. The parameters that you can select for a graph include: 
+
+<ul>
+<li> Title - The title of the graph.
+<div class="p"><!----></div>
+</li>
+
+<li> X-Axis Label - The label displayed for the x-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> Y-Axis Label - The label displayed for the y-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> X-Min - The starting value for the x-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> X-Max - The ending value for the x-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> X-Step - The increment for the x-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> Y-Min - The starting value for the y-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> Y-Max - The ending value for the y-axis.
+<div class="p"><!----></div>
+</li>
+
+<li> Y-Step - The increment for the y-Axis.
+<div class="p"><!----></div>
+</li>
+
+<li> Auto Resize Check Box -
+Determines whether to automatically resize the graph for best fit.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<center>
+<img src="screenshots/editGraphLema.png" alt="screenshots/editGraphLema.png" />
+</center>
+
+<div class="p"><!----></div>
+The data selection menu on the left displays all of the
+available sets of data that can be graphed.  In particular, one can
+graph the average, variance, standard deviation, or results from 
+individual simulation runs.  For a top-level graph, these
+data sets will be organized hierarchically.  Hierarchy is also 
+introduced when simulations in an analysis view are given
+simulation IDs or after performing an analysis while sweeping parameter
+values.  After selecting a data set, one can select individual species to 
+graph and how they are to be displayed.  In other words, for each 
+species, there are the following options: 
+
+<ul>
+<li> Use Check Box - Determines
+whether or not this variable is displayed on the graph.  Checking or 
+unchecking the box at the top changes the state for all variables in
+the data set.
+<div class="p"><!----></div>
+</li>
+
+<li> Variable Label - The name displayed in the legend.
+<div class="p"><!----></div>
+</li>
+
+<li> Drop Down Menu Of Colors - The color that is used for this variable.
+<div class="p"><!----></div>
+</li>
+
+<li> Drop Down Menu Of Shapes - The shape that is used to mark the
+  data points.
+<div class="p"><!----></div>
+</li>
+
+<li> Connect Check Box -
+Determines whether to connect the points with a line. Checking or 
+unchecking the box at the top changes the state for all variables in
+the data set.
+<div class="p"><!----></div>
+</li>
+
+<li> Visible Check Box - Determines
+whether shapes are visible on the line.  Checking or 
+unchecking the box at the top changes the state for all variables in
+the data set.
+<div class="p"><!----></div>
+</li>
+
+<li> Fill Check Box - Determines whether shapes are filled
+on the line.  Checking or 
+unchecking the box at the top changes the state for all variables in
+the data set.
+<div class="p"><!----></div>
+</li>
+</ul>
+Note that a check mark appears on a data set to indicate that some
+variables have been selected in that data set.  Also, all variables can
+be deselected by pressing the Deselect All button.
+
+<div class="p"><!----></div>
+The "Save Graph" button saves the settings for the graph to 
+a file, so when you re-open the graph, it will reload this data and display 
+in the same way as before.  The "Save As" button prompts for a 
+filename and creates a new top-level graph with that name.  
+Finally, the "Export" button prompts for a filename and exports
+the data to the given name.  The extension provided for the filename 
+is used to determine how the graph is to be exported. The
+supported file types are: 
+
+<ul>
+<li> csv - comma separated value data file.
+<div class="p"><!----></div>
+</li>
+
+<li> dat - column separated data file.
+<div class="p"><!----></div>
+</li>
+
+<li> eps - encapsulated postscript.
+<div class="p"><!----></div>
+</li>
+
+<li> jpg - JPEG (Joint Photographic Experts Group).
+<div class="p"><!----></div>
+</li>
+
+<li> pdf - portable document format.
+<div class="p"><!----></div>
+</li>
+
+<li> png - portable network graphics.
+<div class="p"><!----></div>
+</li>
+
+<li> svg - scalable vector graphics.
+<div class="p"><!----></div>
+</li>
+
+<li> tsd - time series data format (see Section&nbsp;<a href="#TSD">10</a>).
+<div class="p"><!----></div>
+</li>
+</ul>
+If no extension is given, then the file type is the one
+specified in the file filter (default is pdf).  For image (i.e.,
+not data) file types, you will be prompted to give a desired
+pixel height and width for the file before the file is exported. 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;<a name="Preferences">
+</a>Preferences</h2>
+
+<div class="p"><!----></div>
+User preferences can be set by selecting the <tt>Preferences</tt> option
+under the <tt>File</tt> menu on Linux and Windows or the <tt>LEMA</tt> 
+menu on MacOS.  As shown below, the user can decided whether they wish
+to use an external editor for VHDL-AMS models, and which editor to use.
+
+<center>
+<img src="screenshots/preferenceLema.png" alt="screenshots/preferenceLema.png" /> 
+</center>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;<a name="LHPN">
+</a>Labeled Hybrid Petri Net Format</h2>
+
+<div class="p"><!----></div>
+Our labeled hybrid Petri net (LHPN) format specifies a system according to an
+extended version of Petri nets.  The graph is specified as a set of places and
+transitions.  Each transition is described with a set of labels described in a
+format specific to LHPNs.  The places, transitions, and boolean signals that are
+general to Petri nets are described in a generalized .g file format, as follows.
+Each space-delineated string on the lines ".inputs" and ".outputs"
+declares a boolean input or output signal.  Each space-delineated string on the
+".dummy" line declares a "dummy" transition to be used in the net.
+Beginning with the ".graph" line, each line with two space-delineated strings
+represents a movement between a place and a transition.  The ".marking" line
+ennumerates the initially marked places in the graph, and the ".end" line
+specifies the end of the file.
+
+<div class="p"><!----></div>
+
+<pre>
+.inputs&nbsp;a&nbsp;b
+.outputs&nbsp;x&nbsp;y&nbsp;z
+.dummy&nbsp;yP&nbsp;xM&nbsp;yM&nbsp;xP&nbsp;zP&nbsp;zM
+.graph
+ip0&nbsp;yP
+xM&nbsp;ip2
+ip5&nbsp;xM
+etc.
+.marking&nbsp;{ip4&nbsp;ip5}
+.end
+
+</pre>
+
+<div class="p"><!----></div>
+The labels and analog behavior of LHPNs is specified using a file format 
+specific to LHPNs.  These lines will be interpreted as comments by other .g
+parsers.  Each line used in the ATACS tool begins with a "#@." (citation for
+ATACS?), while each line specific to the LEMA tool begins with a "# - .".
+Most of these lines are easily understood according to their beginning comments.
+Each of the continuous and integer variables are declared in a space-delineated
+"#@.variables" line included near the top of the file.  Following the 
+variable declaration, the places are explicitly declared in a "# - .places" 
+line, which follows the format of the ".inputs" line.  The inital values of
+the boolean signals are given in a boolean vector in a "#@.init_state" line
+of the following format.  The signals are given in the order that they are
+declared, input signals coming before output signals.
+
+<div class="p"><!----></div>
+
+<pre>
+#@.init_state&nbsp;[boolean&nbsp;vector]
+
+</pre>
+
+<div class="p"><!----></div>
+Each integer and continuous variable is given an initial value in a
+"#@.init_vals" line, and each continuous variable is given an initial rate
+value in a "#@.init_rates" line.  The syntax of these lines is as follows,
+the example being given for a ".#@init_vals" line.
+
+<div class="p"><!----></div>
+
+<pre>
+#@.init_vals&nbsp;{&lt;variable1=initial&nbsp;value1&#62;&lt;variable2...&#62;}
+
+</pre>
+
+<div class="p"><!----></div>
+The enabling condition for each transition is given in a "#@.enablings" line
+in the following format.
+
+<div class="p"><!----></div>
+
+<pre>
+#@.enablings&nbsp;{&lt;transition1=[enabling&nbsp;condition1]&#62;&lt;transition2...&#62;}
+
+</pre>
+
+<div class="p"><!----></div>
+The delay for each transition is specified in the "#@.delay_assignments" 
+line according to the following format, where each lower and upper bound of the
+delay is written as an expression parseable by ATACS.  Likewise, the delays may
+be of a single value for deterministic behavior, as seen on the second 
+transition.
+
+<div class="p"><!----></div>
+
+<pre>
+#@.delay_assignments&nbsp;{&lt;transition1=[lower&nbsp;bound,&nbsp;upper&nbsp;bound]&#62;&lt;transition2=delay&#62;}
+
+</pre>
+
+<div class="p"><!----></div>
+The assignments to boolean variables on each transition are specified in the
+following format, where each lower and upper bound, or each deterministic
+assignment, is also written as an expression.
+
+<div class="p"><!----></div>
+
+<pre>
+#@.boolean_assigments&nbsp;{&lt;transition1=[boolean1:=[lower&nbsp;bound,&nbsp;upper&nbsp;bound]][boolean2:=value]&#62;&lt;transition2...&#62;}
+
+</pre>
+
+<div class="p"><!----></div>
+Assignments to continuous variables and integers are combined onto a single
+"#@.assignments" line and written  in the same format as boolean assignments.
+It may be noted that the only explicit difference between the declaration of
+continuous and integer variables in the inclusion of a "#@.continuous" line
+of the same format as the ".input" and ".output" lines.
+
+<div class="p"><!----></div>
+Below is a simple, but complete example of an LHPN, including each of the 
+options mentioned above.
+
+<div class="p"><!----></div>
+
+<pre>
+.inputs&nbsp;w&nbsp;x
+.ouputs&nbsp;y&nbsp;z
+.dummy&nbsp;t0&nbsp;t1&nbsp;t2
+#@.variables&nbsp;a&nbsp;b&nbsp;c
+#|.places&nbsp;p0&nbsp;p1
+#@.init_state&nbsp;[0011]
+.graph
+p0&nbsp;t0
+t0&nbsp;p1
+p1&nbsp;t2
+t2&nbsp;p0
+.marking&nbsp;{p0}
+#@.init_vals&nbsp;{&lt;a=0&#62;&lt;b=3&#62;&lt;c=[1,2]&#62;}
+#@.init_rates&nbsp;{&lt;a=-2&#62;&lt;b=1&#62;}
+#@.enablings&nbsp;{&lt;t0=[~x&amp;~y]&#62;&lt;t1=[x&amp;(a&#62;=5)]&#62;&lt;t2=[c&#62;=4]&#62;}
+#@.assignments&nbsp;{&lt;t1=[a:=5][c:=4]&#62;&lt;t2=[c:=1]&#62;}
+#@.rate_assignments&nbsp;{&lt;t0=[a:=1]&#62;&lt;t2=[a:=0][b:=1]&#62;}
+#@.delay_assignments&nbsp;{&lt;t0=2&#62;&lt;t1=[0,inf]&#62;&lt;t2=[0,5]&#62;}
+#@.boolean_assignments&nbsp;{&lt;t0=[y:=TRUE]&#62;&lt;t1=[y:=FALSE][z:=TRUE]&#62;&lt;t2=[y:=~w]&#62;}
+#@.continuous&nbsp;a&nbsp;b
+.end
+
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc10">
+10</a>&nbsp;&nbsp;<a name="TSD">
+</a>Time Series Data Format</h2>
+
+<div class="p"><!----></div>
+The time series data (tsd) format is composed of a
+parenthesized and comma-separated set of time points. Each time
+point is composed of a parenthesized and comma-separated set of
+data for that time point. This first time point is composed of a
+set of strings that are the labels for the data entries. The
+first entry in each time point is by convention the time for that
+time point. Below is an example simulation of the species CI and
+CII from 0 to 1000 seconds with time points separated by 100
+seconds. 
+
+<div class="p"><!----></div>
+(("time","CI","CII"), (0,0,0), (100,0,19), (200,20,25), (300,19,18),
+(400,17,20), (500,17,46), <br />
+(600,26,40), (700,43,43), (800,63,28), (900,72,34), (1000,72,28))
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc11">
+11</a>&nbsp;&nbsp;<a name="HotKeys">
+</a>List of Hot Keys</h2>
+
+<div class="p"><!----></div>
+Below is a list of the hot keys used in Windows and Linux with the
+MacOS equilvalents in parantheses.
+
+<ul>
+<li> Ctrl-X (Cmd-Q) - Exit or quit
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-O - Open Project
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-S (Cmd-S) - Save
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-R (Cmd-R) - Save and Run
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-W - Close
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-Shift-W - Close All
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-, (Cmd-,) - Preferences
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-L (Cmd-L) - Create Learn View
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-M - Manual
+<div class="p"><!----></div>
+</li>
+
+<li> (Cmd-H) - Hide window
+<div class="p"><!----></div>
+</li>
+
+<li> (Alt-Cmd-H) - Hide other windows
+<div class="p"><!----></div>
+</li>
+
+<li> Ctrl-C - Copy
+<div class="p"><!----></div>
+</li>
+
+<li> F2 - Rename
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>Delete</tt> - Delete
+<div class="p"><!----></div>
+</li>
+
+<li> F1 - View Circuit
+<div class="p"><!----></div>
+</li>
+
+<li> F3 - View Log
+<div class="p"><!----></div>
+</li>
+
+<li> F5 - Refresh View
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;Reporting Bugs and Feature Requests</h2>
+
+<div class="p"><!----></div>
+In order to report a bug or to request a change or feature, please
+send an email to:<br />
+<a href="mailto:atacs-bugs@vlsigroup.ece.utah.edu">
+<tt>atacs-bugs@vlsigroup.ece.utah.edu</tt>.<br />
+</a>
+The subject line must begin with one of the following keywords or the
+mail will be filtered by our spam filters:
+
+<ul>
+<li> BUG - error or crash of the software
+<div class="p"><!----></div>
+</li>
+
+<li> CHANGE - something which can be improved
+<div class="p"><!----></div>
+</li>
+
+<li> FEATURE - something new
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc13">
+13</a>&nbsp;&nbsp;Credits</h2>
+
+<div class="p"><!----></div>
+The LEMA tool is being developed at the University of Utah
+by 
+<A HREF="http://www.async.ece.utah.edu/~myers">
+Chris Myers,
+</A>
+&nbsp;
+<A HREF="http://www.async.utah.edu/~sbatchu">
+Satish Batchu
+</A>
+&nbsp;
+<A HREF="http://www.async.utah.edu/~kjones">
+Kevin Jones,
+</A>
+&nbsp;
+<A HREF="http://www.async.utah.edu/~little">
+Scott Little,
+</A>
+&nbsp;
+<A HREF="http://nick.gladius.org">
+Nicholas Seegmiller,
+</A>
+&nbsp;
+<A HREF="http://www.cs.ece.utah.edu/~thacker">
+Robert Thacker,
+</A>
+&nbsp;
+<A HREF="http://www.cs.utah.edu/~dwalter">
+David Walter,
+</A>
+and
+<A HREF="http://www.async.ece.utah.edu/~zhang">
+Zhen Zhang.
+</A>
+Scott Little is now with Freescale in Austin, Texas, Nicholas Seegmiller is now
+with Backcountry.com in Park City, Utah, and David Walter is now with the
+Virginia State University.
+
+<div class="p"><!----></div>
+
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.81.<br />On 22 Dec 2012, 16:03.</small>
+</html>

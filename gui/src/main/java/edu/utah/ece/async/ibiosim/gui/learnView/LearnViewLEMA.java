@@ -27,9 +27,9 @@ import edu.utah.ece.async.ibiosim.dataModels.util.dataparser.*;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
 import edu.utah.ece.async.ibiosim.gui.Gui;
 import edu.utah.ece.async.ibiosim.gui.util.*;
-import edu.utah.ece.async.ibiosim.learn.AMSModel.DMVCrun;
-import edu.utah.ece.async.ibiosim.learn.AMSModel.LearnModel;
-import edu.utah.ece.async.ibiosim.learn.AMSModel.Variable;
+import edu.utah.ece.async.lema.learn.AMSModel.DMVCrun;
+import edu.utah.ece.async.lema.learn.AMSModel.LearnModel;
+import edu.utah.ece.async.lema.learn.AMSModel.Variable;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 
 /**

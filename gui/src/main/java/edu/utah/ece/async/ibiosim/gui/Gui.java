@@ -158,6 +158,10 @@ import com.apple.eawt.PreferencesHandler;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 
+// TODO: keep these
+import edu.utah.ece.async.ibiosim.gui.learnView.LearnViewLEMA;
+
+
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerPlugin;
@@ -169,13 +173,14 @@ import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 import edu.utah.ece.async.ibiosim.analysis.util.SEDMLutilities;
-import edu.utah.ece.async.ibiosim.conversion.VPRModelGenerator;
-import edu.utah.ece.async.ibiosim.conversion.SBOL2SBML;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.annotation.AnnotationUtility;
-import edu.utah.ece.async.ibiosim.dataModels.biomodel.annotation.SBOLAnnotation;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.parser.BioModel;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.parser.GCM2SBML;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.SBMLutilities;
+import edu.utah.ece.async.lema.verification.lpn.LPN;
+import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;
+import edu.utah.ece.async.lema.verification.lpn.Translator;
+import edu.utah.ece.async.lema.verification.lpn.properties.BuildProperty;
 import edu.utah.ece.async.ibiosim.dataModels.sbol.SBOLUtility;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.IBioSimPreferences;
@@ -187,7 +192,6 @@ import edu.utah.ece.async.ibiosim.gui.analysisView.Run;
 import edu.utah.ece.async.ibiosim.gui.graphEditor.Graph;
 import edu.utah.ece.async.ibiosim.gui.learnView.DataManager;
 import edu.utah.ece.async.ibiosim.gui.learnView.LearnView;
-import edu.utah.ece.async.ibiosim.gui.learnView.LearnViewLEMA;
 import edu.utah.ece.async.ibiosim.gui.lpnEditor.LHPNEditor;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.movie.MovieContainer;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.sbmlcore.ElementsPanel;
@@ -204,10 +208,7 @@ import edu.utah.ece.async.ibiosim.gui.util.preferences.PreferencesDialog;
 import edu.utah.ece.async.ibiosim.gui.util.tabs.CloseAndMaxTabbedPane;
 import edu.utah.ece.async.ibiosim.gui.verificationView.AbstractionPanel;
 import edu.utah.ece.async.ibiosim.gui.verificationView.VerificationView;
-import edu.utah.ece.async.lema.verification.lpn.LPN;
-import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;
-import edu.utah.ece.async.lema.verification.lpn.Translator;
-import edu.utah.ece.async.lema.verification.lpn.properties.BuildProperty;
+import edu.utah.ece.async.ibiosim.gui.Gui.*;
 import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarLexer;
 import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarParser;
 
@@ -1795,10 +1796,7 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 			} else if (comp instanceof SBOLDesignerPlugin) {
 				exportSBOL((SBOLDesignerPlugin) comp, "Fasta");
 			}
-		} else if (e.getSource() == exportArchive) {
-			// exportSEDML();
-			exportCombineArchive();
-		}
+		} 
 		else if (e.getSource() == exportCsv) {
 			Component comp = tab.getSelectedComponent();
 			if (comp instanceof Graph) {
@@ -2899,24 +2897,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 			Component comp = tab.getSelectedComponent();
 			if (comp instanceof ModelEditor) {
 				((ModelEditor) comp).save(true);
-			} else if (comp instanceof SBOLDesignerPlugin) {
-				log.addText("Saving SBOL file: " + ((SBOLDesignerPlugin) comp).getFileName() + "\n");
-				try {
-					((SBOLDesignerPlugin) comp).saveSBOL();
-					readSBOLDocument();
-				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(frame, "Error Saving SBOL File.", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-				SBOLDocument sbolDoc;
-				try {
-					SBOLReader.setKeepGoing(true);
-					sbolDoc = SBOLReader
-							.read(root + GlobalConstants.separator + ((SBOLDesignerPlugin) comp).getFileName());
-					checkSBOL(sbolDoc, true);
-				} catch (Exception e1) {
-					JOptionPane.showMessageDialog(frame, "Error Validating SBOL File.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
 			}
 		} else if (e.getActionCommand().equals("export")) {
 			Component comp = tab.getSelectedComponent();
@@ -3007,14 +2987,9 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		// if the new rsg menu item is selected
 		else if (e.getSource() == newSpice) {
 			newModel("Spice Circuit", ".cir");
-		} else if (e.getSource().equals(importSbol)) {
-			importSBOL("Import SBOL");
-		} else if (e.getSource().equals(importGenBank)) {
-			importSBOL("Import GenBank");
-		} else if (e.getSource().equals(importFasta)) {
-			importSBOL("Import Fasta");
 		} else if (e.getSource().equals(importSedml)) {
-			importSEDML();
+			// TODO: fix me
+			//importSEDML();
 		}
 		// if the import sbml menu item is selected
 		else if (e.getSource() == importSbml) {
@@ -3183,7 +3158,8 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 				((ModelEditor) comp).redo();
 			}
 		} else if (e.getActionCommand().equals("copy") || e.getSource() == copy) {
-			copy();
+			// TODO: fixme
+			//copy();
 		} else if (e.getActionCommand().equals("rename") || e.getSource() == rename) {
 			rename();
 		} else if (e.getActionCommand().equals("openGraph")) {
@@ -4855,318 +4831,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		writeSEDMLDocument();
 	}
 
-	private void importCombineArchive(String filename,String path) throws IOException {
-		System.out.println ("--- reading archive. ---");
-		File archiveFile = new File (filename);
-		//File destination = new File ("/tmp/myDestination");
-		//File tmpEntryExtract = new File ("/tmp/myExtractedEntry");
-
-		// read the archive stored in `archiveFile`
-		CombineArchive ca;
-		try {
-			ca = new CombineArchive (archiveFile);
-		}
-		catch (JDOMException | ParseException | CombineArchiveException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
-
-		// read description of the archive itself
-		System.out.println ("found " + ca.getDescriptions ().size ()
-				+ " meta data entries describing the archive.");
-
-		// iterate over all entries in the archive
-		for (ArchiveEntry entry : ca.getEntries ())
-		{
-			// display some information about the archive
-			if (entry.getFormat().toString().contains("sbml")) {
-				importSBML(entry.extractFile (new File(path + GlobalConstants.separator + entry.getFileName())).getAbsolutePath());
-			}
-		}
-		for (ArchiveEntry entry : ca.getEntries ())
-		{
-			// display some information about the archive
-			if (entry.getFormat().toString().contains("sbol")) {
-				importSBOLFile(entry.extractFile (new File(path + GlobalConstants.separator + entry.getFileName())).getAbsolutePath());
-			}
-		}
-		for (ArchiveEntry entry : ca.getEntries ())
-		{
-			// display some information about the archive
-			if (entry.getFormat().toString().contains("sed-ml")) {
-				importSEDMLFile(entry.extractFile (new File(path + GlobalConstants.separator + entry.getFileName())).getAbsolutePath ());
-			}
-		}
-
-		// extract the file to `tmpEntryExtract`
-		//			System.out.println ("file can be read from: "
-		//					+ entry.extractFile (new File(root + GlobalConstants.separator + entry.getFileName())).getAbsolutePath ());
-
-		//			// if you just want to read it, you do not need to extract it
-		//			// instead call for an InputStream:
-		//			InputStream myReader = Files.newInputStream (entry.getPath (),
-		//					StandardOpenOption.READ);
-		//			// but here we do not use it...
-		//			myReader.close ();
-		//		         
-		//			// read the descriptions
-		//			for (MetaDataObject description : entry.getDescriptions ())
-		//			{
-		//				System.out.println ("+ found some meta data about "
-		//						+ description.getAbout ());
-		//				if (description instanceof OmexMetaDataObject)
-		//				{
-		//					OmexDescription desc = ((OmexMetaDataObject) description)
-		//							.getOmexDescription ();
-		//			               
-		//					// when was it created?
-		//					System.out.println ("file was created: " + desc.getCreated ());
-		//		               
-		//					// who's created the archive?
-		//					VCard firstCreator = desc.getCreators ().get (0);
-		//					System.out.println ("file's first author: "
-		//							+ firstCreator.getGivenName () + " "
-		//							+ firstCreator.getFamilyName ());
-		//				}
-		//				else
-		//				{
-		//					System.out.println ("found some meta data of type '"
-		//							+ description.getClass ().getName ()
-		//							+ "' that we do not respect in this small example.");
-		//				}
-		//				// No matter what type of description that is, you can always
-		//				// retrieve the XML subtree rooting the meta data using
-		//				Element meta = description.getXmlDescription ();
-		//				// the descriptions are encoded in
-		//				meta.getChildren ();
-		//			}
-		//		}
-
-		// ok, last but not least we can extract the whole archive to our disk:
-		//ca.extractTo (destination);
-		// and now that we're finished: close the archive
-		ca.close ();
-	}
-
-	private void importSEDMLFile(String filename) {
-		String path = filename.substring(0, filename.lastIndexOf(GlobalConstants.separator)+1);
-		try {
-			SEDMLDocument sedmlDoc = null;
-			ArchiveComponents ac = null;
-			if (filename.trim().endsWith(".sedx")) {
-				ac = Libsedml.readSEDMLArchive(new FileInputStream(filename.trim()));
-				sedmlDoc = ac.getSedmlDocument();
-			} else if (filename.trim().endsWith(".omex")) {
-				importCombineArchive(filename,path);
-				return;
-			} else {
-				File sedmlFile = new File(filename.trim());
-				sedmlDoc = Libsedml.readDocument(sedmlFile);
-			}
-			sedmlDoc.validate();
-			if (sedmlDoc.hasErrors()) {
-				List<SedMLError> errors = sedmlDoc.getErrors();
-				// final JFrame f = new JFrame("SED-ML Errors and
-				// Warnings");
-				JTextArea messageArea = new JTextArea();
-				messageArea.append("Imported SED-ML file contains the errors listed below. ");
-				messageArea.append(
-						"It is recommended that you fix them before performing this analysis or you may get unexpected results.\n\n");
-				for (int i = 0; i < errors.size(); i++) {
-					SedMLError error = errors.get(i);
-					messageArea.append(i + ":" + error.getMessage() + "\n");
-				}
-				messageArea.setLineWrap(true);
-				messageArea.setEditable(false);
-				messageArea.setSelectionStart(0);
-				messageArea.setSelectionEnd(0);
-				JScrollPane scroll = new JScrollPane();
-				scroll.setMinimumSize(new Dimension(600, 600));
-				scroll.setPreferredSize(new Dimension(600, 600));
-				scroll.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scroll, "SED-ML Errors and Warnings",
-						JOptionPane.ERROR_MESSAGE);
-			}
-			importSEDMLDocument(path, sedmlDoc, ac);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(frame, "Unable to import SED-ML file.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	private void importSEDML() {
-		Preferences biosimrc = Preferences.userRoot();
-		File importFile;
-		if (biosimrc.get("biosim.general.import_dir", "").equals("")) {
-			importFile = null;
-		} else {
-			importFile = new File(biosimrc.get("biosim.general.import_dir", ""));
-		}
-		String filename = Utility.browse(frame, importFile, null, JFileChooser.FILES_ONLY, "Import SED-ML", -1);
-		if (!filename.trim().equals("")) {
-			biosimrc.put("biosim.general.import_dir", filename.trim());
-			importSEDMLFile(filename);
-		}
-	}
-
-	// public void exportSEDML() {
-	// File lastFilePath;
-	// Preferences biosimrc = Preferences.userRoot();
-	// if (biosimrc.get("biosim.general.export_dir", "").equals("")) {
-	// lastFilePath = null;
-	// }
-	// else {
-	// lastFilePath = new File(biosimrc.get("biosim.general.export_dir", ""));
-	// }
-	// String exportPath = main.util.Utility.browse(Gui.frame, lastFilePath,
-	// null, JFileChooser.FILES_ONLY, "Export SED-ML", -1);
-	// if (!exportPath.equals("")) {
-	// String dir = exportPath.substring(0,
-	// exportPath.lastIndexOf(Gui.separator));
-	// biosimrc.put("biosim.general.export_dir",dir);
-	// log.addText("Exporting SED-ML file:\n" + exportPath + "\n");
-	// List<IModelContent> models = new ArrayList<IModelContent>();
-	// for (String s : new File(root).list()) {
-	// if (s.endsWith(".xml")) {
-	// File modelFile = new File(root + separator + s);
-	// FileModelContent fmc = new FileModelContent(modelFile);
-	// //System.out.println(fmc.getName());
-	// //System.out.println(fmc.getContents());
-	// models.add(fmc);
-	// }
-	// }
-	// try {
-	// byte [] sedx = Libsedml.writeSEDMLArchive(new
-	// ArchiveComponents(models,sedmlDocument),
-	// root.split(Gui.separator)[root.split(Gui.separator).length-1]);
-	// File file = new File(exportPath);
-	// FileOutputStream fos = new FileOutputStream(file);
-	// fos.write(sedx);
-	// fos.flush();
-	// fos.close();
-	// }
-	// catch (Exception e) {
-	// JOptionPane.showMessageDialog(frame, "Unable to export SED-ML file.",
-	// "Error", JOptionPane.ERROR_MESSAGE);
-	// }
-	// }
-	// }
-
-	public void exportCombineArchive() {
-		File lastFilePath;
-		Preferences biosimrc = Preferences.userRoot();
-		if (biosimrc.get("biosim.general.export_dir", "").equals("")) {
-			lastFilePath = null;
-		} else {
-			lastFilePath = new File(biosimrc.get("biosim.general.export_dir", ""));
-		}
-		String exportPath = edu.utah.ece.async.ibiosim.gui.util.Utility.browse(Gui.frame, lastFilePath, null, JFileChooser.FILES_ONLY,
-				"Export Archive", -1);
-		if (!exportPath.equals("")) {
-			String dir = exportPath.substring(0, exportPath.lastIndexOf(GlobalConstants.separator));
-			biosimrc.put("biosim.general.export_dir", dir);
-			log.addText("Exporting COMBINE archive file:\n" + exportPath + "\n");
-			File file = new File(exportPath);
-			if (file.exists()) {
-				file.delete();
-			}
-			try {
-				CombineArchive archive = new CombineArchive(file);
-				File baseDir = new File(root);
-				for (String s : new File(root).list()) {
-					if (s.endsWith(".xml")) {
-						File modelFile = new File(root + GlobalConstants.separator + s);
-						archive.addEntry(baseDir, modelFile, URI
-								.create("http://identifiers.org/combine.specifications/sbml.level-3.version-1.core"));
-					}
-					// TODO: add other file types
-				}
-				String sbolFilename = root + GlobalConstants.separator + currentProjectId + ".sbol";
-				File sbolFile = new File(sbolFilename);
-				archive.addEntry(baseDir, sbolFile,
-						URI.create("http://identifiers.org/combine.specifications/sbol.version-2"), true);
-				File sedmlFile = new File(root + GlobalConstants.separator
-						+ root.split(GlobalConstants.separator)[root.split(GlobalConstants.separator).length - 1]
-								+ ".sedml");
-				archive.addEntry(baseDir, sedmlFile,
-						URI.create("http://identifiers.org/combine.specifications/sed-ml.level-1.version-2"), true);
-				archive.pack();
-				archive.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(frame, "Unable to export SED-ML file.", "Error",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
-	}
-
-	private boolean checkSBOL(SBOLDocument sbolDoc, boolean bestPractice) {
-		SBOLValidate.validateSBOL(sbolDoc, true, true, bestPractice);
-		if (SBOLReader.getNumErrors() > 0 || SBOLValidate.getNumErrors() > 0) {
-			JTextArea messageArea = new JTextArea();
-			messageArea.append("SBOL contains the errors listed below. ");
-			messageArea.append("These need to be fixed before SBOL can be added to your project.\n\n");
-			for (String error : SBOLReader.getErrors()) {
-				messageArea.append(error + "\n");
-			}
-			for (String error : SBOLValidate.getErrors()) {
-				messageArea.append(error + "\n");
-			}
-			messageArea.setLineWrap(true);
-			messageArea.setEditable(false);
-			messageArea.setSelectionStart(0);
-			messageArea.setSelectionEnd(0);
-			JScrollPane scroll = new JScrollPane();
-			scroll.setMinimumSize(new Dimension(600, 600));
-			scroll.setPreferredSize(new Dimension(600, 600));
-			scroll.setViewportView(messageArea);
-			JOptionPane.showMessageDialog(Gui.frame, scroll, "SBOL Errors and Warnings", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		return true;
-	}
-
-	private void importSBOLFile(String filename) {
-		try {
-			File sbolFile = new File(filename.trim());
-			SBOLReader.setKeepGoing(true);
-			SBOLReader.setURIPrefix(EditPreferences.getDefaultUriPrefix());
-			SBOLDocument sbolDoc = SBOLReader.read(sbolFile);
-			sbolDoc.setDefaultURIprefix(EditPreferences.getDefaultUriPrefix());
-			if (!checkSBOL(sbolDoc, false))
-				return;
-			log.addText("Importing " + sbolFile + " into the project's SBOL library.");
-			String filePath = filename.trim();
-			org.sbolstandard.core2.SBOLDocument inputSBOLDoc = SBOLReader.read(new FileInputStream(filePath));
-			generateSBMLFromSBOL(inputSBOLDoc, filePath);
-			getSBOLDocument().read(sbolFile);
-			writeSBOLDocument();
-		} catch (IOException e1) {
-			JOptionPane.showMessageDialog(frame, "Unable to import file.", "Error", JOptionPane.ERROR_MESSAGE);
-		} catch (SBOLConversionException e) {
-			JOptionPane.showMessageDialog(frame, "Unable to import file.", "Error", JOptionPane.ERROR_MESSAGE);
-		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(frame, "Unable to import file.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	private void importSBOL(String fileType) {
-		Preferences biosimrc = Preferences.userRoot();
-		File importFile;
-		if (biosimrc.get("biosim.general.import_dir", "").equals("")) {
-			importFile = null;
-		} else {
-			importFile = new File(biosimrc.get("biosim.general.import_dir", ""));
-		}
-		String filename = Utility.browse(frame, importFile, null, JFileChooser.FILES_ONLY, fileType, -1);
-		if (!filename.trim().equals("")) {
-			biosimrc.put("biosim.general.import_dir", filename.trim());
-			importSBOLFile(filename);
-		}
-	}
-
 	private void importFile(String fileType, String extension1, String extension2) {
 		File importFile;
 		Preferences biosimrc = Preferences.userRoot();
@@ -5845,90 +5509,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
-	private void copy() {
-		if (!tree.getFile().equals(root)) {
-			String oldName = tree.getFile()
-					.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
-			for (int i = 0; i < tab.getTabCount(); i++) {
-				if (getTitleAt(i).equals(oldName)) {
-					tab.setSelectedIndex(i);
-					if (save(i, 0) == 0) {
-						return;
-					}
-					break;
-				}
-			}
-			String copy = JOptionPane.showInputDialog(frame, "Enter a New Filename:", "Copy",
-					JOptionPane.PLAIN_MESSAGE);
-			if (copy == null || copy.equals("")) {
-				return;
-			}
-			copy = copy.trim();
-			if (tree.getFile().contains(".")) {
-				String extension = tree.getFile().substring(tree.getFile().lastIndexOf("."), tree.getFile().length());
-				if (!copy.endsWith(extension)) {
-					copy += extension;
-				}
-			}
-			if (copy.equals(oldName)) {
-				JOptionPane.showMessageDialog(frame,
-						"Unable to copy file." + "\nNew filename must be different than old filename.", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			try {
-				if (checkFiles(oldName, copy)) {
-					if (overwrite(root + GlobalConstants.separator + copy, copy)) {
-						if (copy.endsWith(".xml")) {
-							SBMLDocument document = SBMLutilities.readSBML(tree.getFile());
-							List<URI> sbolURIs = new LinkedList<URI>();
-							String sbolStrand = AnnotationUtility.parseSBOLAnnotation(document.getModel(), sbolURIs);
-							Iterator<URI> sbolIterator = sbolURIs.iterator();
-							while (sbolIterator != null && sbolIterator.hasNext()) {
-								if (sbolIterator.next().toString().endsWith("iBioSim")) {
-									sbolIterator.remove();
-									sbolIterator = null;
-									if (sbolURIs.size() > 0) {
-										if (!AnnotationUtility.setSBOLAnnotation(document.getModel(),
-												new SBOLAnnotation(document.getModel().getMetaId(), sbolURIs,
-														sbolStrand))) {
-											JOptionPane.showMessageDialog(Gui.frame, "Invalid XML in SBML file",
-													"Error occurred while annotating SBML element "
-															+ document.getModel().getId() + " with SBOL.",
-															JOptionPane.ERROR_MESSAGE);
-										}
-									} else {
-										AnnotationUtility.removeSBOLAnnotation(document.getModel());
-									}
-								}
-							}
-							document.getModel().setId(copy.substring(0, copy.lastIndexOf(".")));
-							SBMLWriter writer = new SBMLWriter();
-							writer.writeSBMLToFile(document, root + GlobalConstants.separator + copy);
-						} else if (copy.contains(".")) {
-							FileOutputStream out = new FileOutputStream(
-									new File(root + GlobalConstants.separator + copy));
-							FileInputStream in = new FileInputStream(new File(tree.getFile()));
-							int read = in.read();
-							while (read != -1) {
-								out.write(read);
-								read = in.read();
-							}
-							in.close();
-							out.close();
-						} else {
-							copyDirectory(tree.getFile(), root + GlobalConstants.separator + copy, copy);
-						}
-						addToTree(copy);
-						copySEDML(oldName, copy);
-					}
-				}
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(frame, "Unable to copy file.", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-		}
-	}
-
 	private void renameTabs(String oldName, String rename) {
 		for (int i = 0; i < tab.getTabCount(); i++) {
 			if (getTitleAt(i).equals(tree.getFile()
@@ -6319,110 +5899,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
-
-	/**
-	 * Bring up an SBOL dialog window that will ask the user to select an SBOL design/part that was loaded from
-	 * the library SBOL document stored in iBioSim's project. Once a SBOL design/part has been selected from the 
-	 * dialog, the user has the option to either:
-	 * 1. Open in SBOLDesigner
-	 * 2. Perform VPR Generator
-	 */
-	private void openSBOLOptions()
-	{
-		SBOLDocument currentDoc = getSBOLDocument();
-		if (currentDoc == null) 
-		{
-			return;
-		}
-		
-		// Open up the SBOL design/part dialog 
-		SBOLInputDialog s = new SBOLInputDialog(mainPanel, currentDoc);
-		if(s.getInput() == null)
-		{
-			return;
-		}
-		
-		SBOLDocument chosenDesign = s.getSelection();
-		while(chosenDesign.getComponentDefinitions().isEmpty() && chosenDesign.getModuleDefinitions().isEmpty())
-		{
-			JOptionPane.showMessageDialog(Gui.frame, "You need to select at least one design to run VPR Model Generator or open SBOLDesigner. Try again.", 
-					"No Design Selected",
-					JOptionPane.INFORMATION_MESSAGE);
-			s = new SBOLInputDialog(mainPanel, currentDoc);
-			if(s.getInput() == null)
-			{
-				return;
-			}
-			chosenDesign = s.getSelection();
-		}
-		
-		String fileName = currentProjectId + ".sbol";
-		String filePath = root + GlobalConstants.separator;
-		if(s.isVPRGenerator())
-		{
-			runVPRGenerator(filePath, fileName, chosenDesign);
-		}
-		else if(s.isSBOLDesigner())
-		{
-			openSBOLDesigner(filePath, fileName, chosenDesign.getRootComponentDefinitions(), currentDoc.getDefaultURIprefix());
-			
-		}
-	}
-	
-	/**
-	 * Perform VPR Model generator from the given SBOLDocument.
-	 * @param fileName - The name of the SBOL file that the given SBOLDocument was created from.
-	 * @param chosenDesign - The chosen design, stored within an SBOLDocument, that the user would like to perform VPR Model Generation from.
-	 */
-	private void runVPRGenerator(String filePath, String fileName, SBOLDocument chosenDesign)
-	{
-		try {
-			if(chosenDesign != null)
-			{
-				String selectedRepo = getSelectedRepo();
-				if(selectedRepo == null)
-				{
-					//user selected nothing. Stop performing VPR Model Generation
-					return;
-				}
-				
-				VPRModelGenerator.generateModel(selectedRepo, chosenDesign);
-				generateSBMLFromSBOL(chosenDesign, tree.getFile());
-				JOptionPane.showMessageDialog(Gui.frame, "VPR Model Generator has completed.");
-			}
-		} 
-		catch (SBOLValidationException e) 
-		{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame, "SBOL file at " + fileName + " is invalid.", "Invalid SBOL",
-					JOptionPane.ERROR_MESSAGE);
-		} 
-		catch (IOException e) 
-		{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame, "Unable to find this SBOL file at this location: " + filePath + ".", "File Not Found",
-					JOptionPane.ERROR_MESSAGE);
-		} 
-		catch (SBOLConversionException e) 
-		{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame, "The output SBOLDocument of the generated model was unable to convert to SBML", "SBOL to SBML Conversion Failed",
-					JOptionPane.ERROR_MESSAGE);
-		} 
-		catch (VPRException e) 
-		{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame, "Unable to perform VPR Model Generation on this SBOL file: " + fileName + ".", "Unable to Perform VPR Model Generation",
-					JOptionPane.ERROR_MESSAGE);
-		} 
-		catch (VPRTripleStoreException e) 
-		{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame, "Unable to perform VPR Model Generation on this SBOL file: " + fileName + ".", "Unable to Perform VPR Model Generation",
-					JOptionPane.ERROR_MESSAGE);
-		}	
-	}
 	
 	/**
 	 * Retrieve the URL of the selected synbiohub repository that the user has selected from the repository dialog.
@@ -6550,31 +6026,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 				
 			}
 		}
-	}
-
-	private void generateSBMLFromSBOL(SBOLDocument inputSBOLDoc, String filePath) {
-		try {
-			for (ModuleDefinition moduleDef : inputSBOLDoc.getRootModuleDefinitions()) {
-				List<BioModel> models;
-				try {
-					models = SBOL2SBML.generateModel(root, moduleDef, inputSBOLDoc);
-					for (BioModel model : models) {
-						if (overwrite(root + File.separator + model.getSBMLDocument().getModel().getId() + ".xml",
-								model.getSBMLDocument().getModel().getId() + ".xml")) {
-							model.save(root + File.separator + model.getSBMLDocument().getModel().getId() + ".xml");
-							addToTree(model.getSBMLDocument().getModel().getId() + ".xml");
-						}
-					}
-				} catch (XMLStreamException e) {
-					JOptionPane.showMessageDialog(Gui.frame, "Invalid XML in SBML file", "Error Checking File",
-							JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
-				}
-			}
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Gui.frame, "SBOL file not found at " + filePath + ".", "File Not Found",
-					JOptionPane.ERROR_MESSAGE);
-		} 
 	}
 
 	/**
@@ -8158,12 +7609,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".xml")) {
 				openSBML(tree.getFile());
 			} else if (tree.getFile().length() >= 4
-					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".gcm")) {
-				openModelEditor(false);
-			} else if (tree.getFile().length() >= 5
-					&& tree.getFile().substring(tree.getFile().length() - 5).equals(".sbol")) {
-				openSBOLOptions();
-			} else if (tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".vhd")) {
 				openModel("VHDL");
 			} else if (tree.getFile().length() >= 2
@@ -8544,6 +7989,7 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
+	// TODO: keeper
 	private void openLearnLHPN() {
 		boolean done = false;
 		for (int i = 0; i < tab.getTabCount(); i++) {

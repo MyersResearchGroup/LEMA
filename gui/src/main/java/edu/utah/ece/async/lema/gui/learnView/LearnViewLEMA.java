@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.learnView;
+package edu.utah.ece.async.lema.gui.learnView;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,16 +25,16 @@ import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.Message;
 import edu.utah.ece.async.ibiosim.dataModels.util.dataparser.*;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
-import edu.utah.ece.async.ibiosim.gui.Gui;
 import edu.utah.ece.async.ibiosim.gui.util.*;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.learn.AMSModel.DMVCrun;
 import edu.utah.ece.async.lema.learn.AMSModel.LearnModel;
 import edu.utah.ece.async.lema.learn.AMSModel.Variable;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 
 /**
- * This class creates a GUI for the Learn program. It implements the
- * ActionListener class. This allows the GUI to perform actions when menu items
+ * This class creates a lemaGui for the Learn program. It implements the
+ * ActionListener class. This allows the lemaGui to perform actions when menu items
  * and buttons are selected.
  * 
  * @author Curtis Madsen
@@ -74,7 +74,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 	private String separator;
 
-	private Gui gui;
+	private lemaGui lemaGui;
 
 	private String seedLpnFile, lhpnFile;
 
@@ -225,9 +225,9 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	 * fields, puts them on panels, adds the panels to the frame, and then
 	 * displays the frame.
 	 */
-	public LearnViewLEMA(String directory, Log log, Gui biosim) {
+	public LearnViewLEMA(String directory, Log log, lemaGui biosim) {
 		separator = GlobalConstants.separator;
-		this.gui = biosim;
+		this.lemaGui = biosim;
 		this.log = log;
 		this.directory = directory;
 		String[] getFilename = directory.split(separator);
@@ -453,7 +453,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				allVars.remove(0);
 			}
 			else{
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Error!",
 						"AllVars doesnot have time at zeroeth element. Something wrong. Please check time variable", JOptionPane.ERROR_MESSAGE);
 			}
@@ -477,7 +477,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 			}
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to load properties file!",
 					"Error Loading Properties", JOptionPane.ERROR_MESSAGE);
 		}
@@ -487,7 +487,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		try {
       lhpn.load(seedLpnFile);
     } catch (BioSimException e1) {
-      JOptionPane.showMessageDialog(Gui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
+      JOptionPane.showMessageDialog(lemaGui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
     }
 		HashMap<String, Properties> variablesMap = lhpn.getContinuous(); //System.out.println("Variables MAp :"+variablesMap.keySet());
 		for (String s : variablesMap.keySet()) {  //System.out.println("Variables MAp :"+s);
@@ -719,7 +719,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				}
 			}
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to load properties file!",
 					"Error Loading Properties", JOptionPane.ERROR_MESSAGE);
 		}
@@ -737,7 +737,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			write.close();
 			input.close();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to create background file!",
 					"Error Writing Background", JOptionPane.ERROR_MESSAGE);
 		}
@@ -1207,7 +1207,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					//					write.close();
 				} catch (Exception e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(Gui.frame,
+					JOptionPane.showMessageDialog(lemaGui.frame,
 							"Unable to save thresholds!",
 							"Error saving thresholds", JOptionPane.ERROR_MESSAGE);
 				}
@@ -1628,7 +1628,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 	public void saveLPN() {
 		try {
-			String copy = JOptionPane.showInputDialog(Gui.frame,
+			String copy = JOptionPane.showInputDialog(lemaGui.frame,
 					"Enter Circuit Name:", "Save Circuit",
 					JOptionPane.PLAIN_MESSAGE);
 			if (copy != null) {
@@ -1645,9 +1645,9 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					copy += ".lpn";
 				}
 			}
-			gui.saveLPN(copy, directory + separator + lhpnFile);
+			lemaGui.saveLPN(copy, directory + separator + lhpnFile);
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to save model.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -1695,16 +1695,16 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					scrolls.setMinimumSize(new Dimension(500, 500));
 					scrolls.setPreferredSize(new Dimension(500, 500));
 					scrolls.setViewportView(messageArea);
-					JOptionPane.showMessageDialog(Gui.frame, scrolls,
+					JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 							"Log", JOptionPane.INFORMATION_MESSAGE);
 				}
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No circuit has been generated yet.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view LPN Model.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -1729,15 +1729,15 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				scrolls.setMinimumSize(new Dimension(500, 500));
 				scrolls.setPreferredSize(new Dimension(500, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls,
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 						"Run Log", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No run log exists.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view run log.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -1795,15 +1795,15 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				scrolls.setMinimumSize(new Dimension(500, 500));
 				scrolls.setPreferredSize(new Dimension(500, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls,
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 						"Coverage Report", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No Coverage Report exists.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view Coverage Report.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -1830,15 +1830,15 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				scrolls.setMinimumSize(new Dimension(800, 500));
 				scrolls.setPreferredSize(new Dimension(800, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls,
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 						"VHDL-AMS Model", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"VHDL-AMS model does not exist.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view VHDL-AMS model.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -1865,15 +1865,15 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				scrolls.setMinimumSize(new Dimension(800, 500));
 				scrolls.setPreferredSize(new Dimension(800, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls,
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 						"Verilog-AMS Model", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Verilog-AMS model does not exist.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view Verilog-AMS model.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -2201,7 +2201,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			change = false;
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to save parameter file!", "Error Saving File",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -2280,7 +2280,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	public void run() {
 		/* TODO: need to update for new thresholds */
 		if (reqdVarsL.size()<=0) {
-			JOptionPane.showMessageDialog(Gui.frame,"No variables selected.",
+			JOptionPane.showMessageDialog(lemaGui.frame,"No variables selected.",
 					"Model Generation Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -2404,7 +2404,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				l.addObserver(this);
 				out.write("Sending the following thresholds for model generation \n");
 				// Warn the user if the internal thresholds don't match those being 
-				// displayed in the GUI. Useful for debugging.
+				// displayed in the lemaGui. Useful for debugging.
 				boolean warned = false;
 				for (String st1 : thresholds.keySet()){ 
 					out.write(st1 + " -> ");
@@ -2438,9 +2438,9 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 								if (!warned &&(thresholds.get(st1).get(j)!= null)&& ((threshValues[j])!= null)){
 									if  (thresholds.get(st1).get(j)!= Double.parseDouble(threshValues[j])){ //System.out.println("the error value is :");
 										warned = true;
-										out.write("WARNING: THRESHOLDS OF " + st1 + " NOT MATCHING THOSE IN THE GUI. WRONG!");
-										JOptionPane.showMessageDialog(Gui.frame,
-												"Thresholds of " + st1 + " not matching those displayed in the gui.",
+										out.write("WARNING: THRESHOLDS OF " + st1 + " NOT MATCHING THOSE IN THE lemaGui. WRONG!");
+										JOptionPane.showMessageDialog(lemaGui.frame,
+												"Thresholds of " + st1 + " not matching those displayed in the lemaGui.",
 												"WARNING!", JOptionPane.WARNING_MESSAGE);
 									}
 									}
@@ -2448,9 +2448,9 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 							} else {
 								if (!warned && (thresh!=null)){
 									warned = true;
-									out.write("WARNING: THRESHOLDS OF " + st1 + " NOT MATCHING THOSE IN THE GUI. WRONG!");
-									JOptionPane.showMessageDialog(Gui.frame,
-											"Thresholds of " + st1 + " not matching those displayed in the gui.",
+									out.write("WARNING: THRESHOLDS OF " + st1 + " NOT MATCHING THOSE IN THE lemaGui. WRONG!");
+									JOptionPane.showMessageDialog(lemaGui.frame,
+											"Thresholds of " + st1 + " not matching those displayed in the lemaGui.",
 											"WARNING!", JOptionPane.WARNING_MESSAGE);
 								}
 							}
@@ -2503,7 +2503,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					try {
             seedLpn.load(seedLpnFile);
           } catch (BioSimException e1) {
-            JOptionPane.showMessageDialog(Gui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
+            JOptionPane.showMessageDialog(lemaGui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
             e1.printStackTrace();
           }
 					g = mergeLhpns(seedLpn,g);
@@ -2561,7 +2561,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 							JOptionPane.PLAIN_MESSAGE);
 			        */
 					//viewLhpn();
-					gui.updateMenu(true,true);
+					lemaGui.updateMenu(true,true);
 				} else {
 					//	System.out.println(" does not exist \n");
 					viewVHDL.setEnabled(false); 	// SB
@@ -2570,7 +2570,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					viewCoverage.setEnabled(false); // SB
 					saveLhpn.setEnabled(false); 	// SB
 					fail = true;
-					gui.updateMenu(true,false);
+					lemaGui.updateMenu(true,false);
 				}
 			}
 			out.close();
@@ -2583,7 +2583,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to create log file.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 
@@ -2700,7 +2700,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		tPar.put("stableTolerance", stableTolerance);
 		} catch (IOException e){
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to create log file.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -2769,7 +2769,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		try {
       lhpn.load(seedLpnFile);
     } catch (BioSimException e1) {
-      JOptionPane.showMessageDialog(Gui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
+      JOptionPane.showMessageDialog(lemaGui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
       e1.printStackTrace();
     }
 		HashMap<String, Properties> variablesMap = lhpn.getContinuous();
@@ -2868,7 +2868,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				}
 			}
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to load properties file!",
 				"Error Loading Properties", JOptionPane.ERROR_MESSAGE);
 		}
@@ -3033,12 +3033,12 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Log file couldn't be opened in addInitPlace.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Null exception in addInitPlace.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -3173,12 +3173,12 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			} //System.out.println("Rates :"+rates);
 		} catch (NullPointerException e){
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Bins/Rates could not be generated. Please check thresholds.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);				
 		} catch (IOException e){
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Log file couldn't be opened for writing genBinsRates messages.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -3413,7 +3413,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			}
 		}catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Log file couldn't be opened for writing rates and bins.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -3504,7 +3504,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			}
 		}catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Log file couldn't be opened for writing rates and bins.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -3608,7 +3608,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		}
 		catch (NullPointerException e){
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Not all regions have values for all dmv variables",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -4038,7 +4038,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					for (String k : dmvDivs.keySet()){
 						for (int l = 0; l < reqdVarsL.size(); l++){
 							if (!reqdVarsL.get(l).isDmvc()){
-								JOptionPane.showMessageDialog(Gui.frame,
+								JOptionPane.showMessageDialog(lemaGui.frame,
 										"Can't generate the number of thresholds for continuous variables.",
 										"ERROR!", JOptionPane.ERROR_MESSAGE);
 								out.write(reqdVarsL.get(l).getName() + " is not a dmv. So.. ");
@@ -4071,7 +4071,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 							varThresholds.put(reqdVarsL.get(k).getName(),Integer.valueOf(numThresholds));
 							if (numThresholds == -1){
 								if (!reqdVarsL.get(k).isDmvc()){
-									JOptionPane.showMessageDialog(Gui.frame,
+									JOptionPane.showMessageDialog(lemaGui.frame,
 											"Can't generate the number of thresholds for continuous variables.",
 											"ERROR!", JOptionPane.ERROR_MESSAGE);
 
@@ -4156,20 +4156,20 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		}
 		catch(NullPointerException e){
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to calculate rates.\nThresholds could not be generated\nWindow size or pathLengthBin must be reduced.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 			running.setCursor(null);
 			running.dispose();
 		} catch (IOException e2) {
 			e2.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to write into log file in autogenT.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		} catch (NoSuchElementException e3) {
 			e3.printStackTrace();
 			if (reqdVarsL.size() == 0){
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No input or output variables.",
 						"ERROR!", JOptionPane.ERROR_MESSAGE);
 			}
@@ -4224,20 +4224,20 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		
 	catch(NullPointerException e){
 		e.printStackTrace();
-		JOptionPane.showMessageDialog(Gui.frame,
+		JOptionPane.showMessageDialog(lemaGui.frame,
 				"Unable to calculate rates.\nThresholds could not be generated\nWindow size or pathLengthBin must be reduced.",
 				"ERROR!", JOptionPane.ERROR_MESSAGE);
 		running.setCursor(null);
 		running.dispose();
 	} catch (IOException e2) {
 		e2.printStackTrace();
-		JOptionPane.showMessageDialog(Gui.frame,
+		JOptionPane.showMessageDialog(lemaGui.frame,
 				"Unable to write into log file in autogenT.",
 				"ERROR!", JOptionPane.ERROR_MESSAGE);
 	} catch (NoSuchElementException e3) {
 		e3.printStackTrace();
 		if (reqdVarsL.size() == 0){
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"No input or output variables.",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -4808,7 +4808,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 									}
 									else{
 										key += "Z"; // ***Encoding highest bin +1 as Z
-										// encoding not required here.. but may be useful to distinguish the pseudobins from normal bins in future
+										// encoding not required here.. but may be useful to distinlemaGuish the pseudobins from normal bins in future
 									}
 								}
 								if ((syncBinEncoding.get(i) == divisionsL.get(i).size() + 1) && (!placeInfo.containsKey(key))){ 
@@ -5780,7 +5780,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			tmp.delete();
 		}catch(Exception e){
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Problem while merging lpns",
 					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -5798,11 +5798,11 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
     }
     else if(message.isErrorDialog())
     {
-      JOptionPane.showMessageDialog(Gui.frame, message.getMessage(), message.getTitle(), JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(lemaGui.frame, message.getMessage(), message.getTitle(), JOptionPane.ERROR_MESSAGE);
     }
     else if(message.isDialog())
     {
-      JOptionPane.showMessageDialog(Gui.frame, message.getMessage(), message.getTitle(), JOptionPane.PLAIN_MESSAGE);
+      JOptionPane.showMessageDialog(lemaGui.frame, message.getMessage(), message.getTitle(), JOptionPane.PLAIN_MESSAGE);
     }
     else if(message.isLog())
     {

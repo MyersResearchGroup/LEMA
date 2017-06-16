@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.lpnEditor;
+package edu.utah.ece.async.lema.gui.lpnEditor;
 
 
 import java.awt.GridLayout;
@@ -29,7 +29,7 @@ import javax.swing.JTextField;
 
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.parser.CompatibilityFixer;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
-import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.lema.gui.lemaGui;
 
 /**
  * 
@@ -120,7 +120,7 @@ public class PropertyField extends JPanel implements ActionListener {
 			if (Utility.isValid(e.getActionCommand(), regExp)) {
 				// System.out.println();
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame, "Illegal value entered.",
+				JOptionPane.showMessageDialog(lemaGui.frame, "Illegal value entered.",
 						"Illegal value entered", JOptionPane.ERROR_MESSAGE);
 			}
 		}

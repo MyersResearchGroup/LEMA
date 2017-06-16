@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.lpnEditor;
+package edu.utah.ece.async.lema.gui.lpnEditor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,10 +36,15 @@ import javax.swing.JTextField;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
-import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.lema.gui.lpnEditor.ControlFlowPanel;
+import edu.utah.ece.async.lema.gui.lpnEditor.PlacePanel;
+import edu.utah.ece.async.lema.gui.lpnEditor.PropertyPanel;
+import edu.utah.ece.async.lema.gui.lpnEditor.TransitionsPanel;
+import edu.utah.ece.async.lema.gui.lpnEditor.VariablesPanel;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.AbstractRunnableNamedButton;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.Runnable;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.*;
 
 import javax.swing.JButton;
@@ -76,14 +81,14 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 
 	private boolean flag = true, dirty = false;
 
-	private Gui biosim;
+	private lemaGui biosim;
 
 	public LHPNEditor() {
 		super();
 	}
 
 	public LHPNEditor(String directory, String filename, LPN lhpn,
-			Gui biosim) {
+			lemaGui biosim) {
 		super();
 		this.biosim = biosim;
 		addMouseListener(biosim);
@@ -101,7 +106,7 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 				try {
           lhpnFile.load(directory + separator + filename);
         } catch (BioSimException e) {
-          JOptionPane.showMessageDialog(Gui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
+          JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
           e.printStackTrace();
         }
 			}
@@ -109,10 +114,10 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 		} else {
 			this.filename = "";
 		}
-		buildGui(this.filename);
+		buildlemaGui(this.filename);
 	}
 
-	private void buildGui(String filename) {
+	private void buildlemaGui(String filename) {
 		JPanel mainPanelNorth = new JPanel();
 		JPanel mainPanelCenter = new JPanel(new BorderLayout());
 		JPanel mainPanelCenterUp = new JPanel();
@@ -300,7 +305,7 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 					scrolls.setMinimumSize(new Dimension(500, 500));
 					scrolls.setPreferredSize(new Dimension(500, 500));
 					scrolls.setViewportView(messageArea);
-					JOptionPane.showMessageDialog(Gui.frame, scrolls, "Log",
+					JOptionPane.showMessageDialog(lemaGui.frame, scrolls, "Log",
 							JOptionPane.INFORMATION_MESSAGE);
 				}
 			} else {
@@ -321,7 +326,7 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 			try {
         lhpnFile.load(directory + separator + newName);
       } catch (BioSimException e) {
-        JOptionPane.showMessageDialog(Gui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
+        JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
         e.printStackTrace();
       }
 		}
@@ -469,7 +474,7 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 					panel.add(temp);
 					list[i] = temp;
 				}
-				int value = JOptionPane.showOptionDialog(Gui.frame, panel,
+				int value = JOptionPane.showOptionDialog(lemaGui.frame, panel,
 						"Variable Assignment Editor",
 						JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE,
 						null, options, options[0]);
@@ -535,11 +540,11 @@ public class LHPNEditor extends JPanel implements ActionListener, MouseListener 
 		@Override
 		public void run() {
 			if (name == null || name.equals("")) {
-			  JOptionPane.showMessageDialog(Gui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
+			  JOptionPane.showMessageDialog(lemaGui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
 				return;
 			}
 			if (list.getSelectedValue() == null && getName().contains("Edit")) {
-				 JOptionPane.showMessageDialog(Gui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
 				return;
 			}
 			if (getName().contains("Variable")) {

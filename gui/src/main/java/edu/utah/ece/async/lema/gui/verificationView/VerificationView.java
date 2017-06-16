@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.verificationView;
+package edu.utah.ece.async.lema.gui.verificationView;
 
 import java.awt.AWTError;
 import java.awt.BorderLayout;
@@ -69,10 +69,11 @@ import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.Message;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
-import edu.utah.ece.async.ibiosim.gui.Gui;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.schematic.ModelEditor;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
 import edu.utah.ece.async.ibiosim.gui.util.Log;
+import edu.utah.ece.async.lema.gui.verificationView.AbstractionPanel;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.Abstraction;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.Place;
@@ -140,7 +141,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 
 	private Log log;
 
-	private Gui biosim;
+	private lemaGui lemaGui;
 
 	private final AbstractionProperty absProperty;
 	/**
@@ -149,11 +150,11 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 	 * then displays the frame.
 	 */
 	public VerificationView(String directory, String verName, String filename,
-			Log log, Gui biosim, boolean lema, boolean atacs) {
+			Log log, lemaGui biosim, boolean lema, boolean atacs) {
 		separator = GlobalConstants.separator;
 		this.atacs = atacs;
 		this.lema = lema;
-		this.biosim = biosim;
+		this.lemaGui = biosim;
 		this.log = log;
 		this.directory = directory;
 		verFile = verName + ".ver";
@@ -887,7 +888,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			backgroundField = new JTextField(sourceFileNoPath);
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to load properties file!",
 					"Error Loading Properties", JOptionPane.ERROR_MESSAGE);
 		}
@@ -1028,7 +1029,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					}
 				}
 				if (!filename.endsWith(".vhd")) {
-					JOptionPane.showMessageDialog(Gui.frame,
+					JOptionPane.showMessageDialog(lemaGui.frame,
 							"You must select a valid VHDL file.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
@@ -1036,7 +1037,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 						|| filename.equals(sourceFileNoPath) || contains) {
 					JOptionPane
 					.showMessageDialog(
-							Gui.frame,
+							lemaGui.frame,
 							"This component is already contained in this tool.",
 							"Error", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -1090,7 +1091,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 							}
 						}
 						if (!filename.endsWith(".lpn")) {
-							JOptionPane.showMessageDialog(Gui.frame,
+							JOptionPane.showMessageDialog(lemaGui.frame,
 									"You must select a valid LPN file.", "Error",
 									JOptionPane.ERROR_MESSAGE);
 							return;
@@ -1098,7 +1099,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 								|| filename.equals(sourceFileNoPath) || contains) {
 							JOptionPane
 							.showMessageDialog(
-									Gui.frame,
+									lemaGui.frame,
 									"This lpn is already contained in this tool.",
 									"Error", JOptionPane.ERROR_MESSAGE);
 							return;
@@ -1145,7 +1146,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			try {
         lpn.load(directory + separator + lpnFileName);
       } catch (BioSimException e1) {
-        JOptionPane.showMessageDialog(Gui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
+        JOptionPane.showMessageDialog(lemaGui.frame, e1.getMessage(), e1.getTitle(), JOptionPane.ERROR_MESSAGE); 
         e1.printStackTrace();
       }
 			Options.setLogName(lpn.getLabel());
@@ -1161,7 +1162,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					try {
             curLPN.load(directory + separator + curLPNname);
           } catch (BioSimException e) {
-            JOptionPane.showMessageDialog(Gui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
+            JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
             e.printStackTrace();
           }
 					selectedLPNs.add(curLPN);
@@ -1175,7 +1176,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				//					System.out.println(selectedLPNs.get(i).getLabel());
 				//				}
 
-				////=============== Code to produce a GUI for rearranging the order of loading LPNs into the Project constructor ================			
+				////=============== Code to produce a lemaGui for rearranging the order of loading LPNs into the Project constructor ================			
 				//				System.out.println("====== LPN loading order (manipulated) ========");
 				//				ArrayList<LhpnFile> selectedLPNsManipulated = new ArrayList<LhpnFile>(selectedLPNs.size());
 				//				System.out.println("size = " + selectedLPNsManipulated.size());
@@ -1193,7 +1194,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				//					mainPanel0.add("North", new JLabel("Select a LPN:"));
 				//					mainPanel0.add("Center", ampleMethdsPane);							
 				//					Object[] options0 = {"Select", "Cancel"};
-				//					int optionRtVal0 = JOptionPane.showOptionDialog(Gui.frame, mainPanel0, "LPN order manipulation", 
+				//					int optionRtVal0 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel0, "LPN order manipulation", 
 				//							JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options0, options0[0]);
 				//					if (optionRtVal0 == 1)  // Cancel					
 				//						return;
@@ -1221,7 +1222,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				//					mainPanel0.add("North", new JLabel("Select an ample set computation method:"));
 				//					mainPanel0.add("Center", ampleMethdsPane);							
 				//					Object[] options0 = {"Run", "Cancel"};
-				//					int optionRtVal0 = JOptionPane.showOptionDialog(Gui.frame, mainPanel0, "Ample set computation methods selection", 
+				//					int optionRtVal0 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel0, "Ample set computation methods selection", 
 				//								JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options0, options0[0]);
 				//					if (optionRtVal0 == 1) {
 				//						// Cancel
@@ -1232,7 +1233,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				//						Options.setPOR("tb");
 				//					if (ampleMethdsIndex == 1)
 				//						Options.setPOR("tboff");					
-				//					// GUI for different cycle closing methods.
+				//					// lemaGui for different cycle closing methods.
 				//					String[] entries = {"Use behavioral analysis",
 				//										"Use behavioral analysis and state trace-back",
 				//										"No cycle closing",
@@ -1245,7 +1246,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				//					mainPanel.add("North", new JLabel("Select a cycle closing method:"));
 				//					mainPanel.add("Center", cycleClosingPane);							
 				//					Object[] options = {"Run", "Cancel"};
-				//					int optionRtVal = JOptionPane.showOptionDialog(Gui.frame, mainPanel, "Cycle closing methods selection", 
+				//					int optionRtVal = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel, "Cycle closing methods selection", 
 				//								JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 				//					if (optionRtVal == 1) {
 				//						// Cancel
@@ -1263,7 +1264,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				//							mainPanel1.add("North", new JLabel("Select a cycle closing ample computation method:"));
 				//							mainPanel1.add("Center", cycleClosingAmpleMethdsPane);							
 				//							Object[] options1 = {"Run", "Cancel"};
-				//							int optionRtVal1 = JOptionPane.showOptionDialog(Gui.frame, mainPanel1, "Cycle closing ample computation method selection", 
+				//							int optionRtVal1 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel1, "Cycle closing ample computation method selection", 
 				//										JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options1, options1[0]);
 				//							if (optionRtVal1 == 1) {
 				//								// Cancel
@@ -1314,7 +1315,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					mainPanel0.add("North", new JLabel("Select an ample set computation method:"));
 					mainPanel0.add("Center", ampleMethdsPane);							
 					Object[] options0 = {"Run", "Cancel"};
-					int optionRtVal0 = JOptionPane.showOptionDialog(Gui.frame, mainPanel0, "Ample set computation methods selection", 
+					int optionRtVal0 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel0, "Ample set computation methods selection", 
 							JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options0, options0[0]);
 					if (optionRtVal0 == 1) { // Cancel
 						return;
@@ -1337,7 +1338,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 							mainPanel1.add("North", new JLabel("Select a dependency relation for transition rates:"));
 							mainPanel1.add("Center", tranRateDepPane);							
 							Object[] options1 = {"Run", "Cancel"};
-							int optionRtVal1 = JOptionPane.showOptionDialog(Gui.frame, mainPanel1, "Transition rates depedency relation for partial-order reduction", 
+							int optionRtVal1 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel1, "Transition rates depedency relation for partial-order reduction", 
 									JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options1, options1[0]);
 							if (optionRtVal1 == 1) { // Cancel
 								return;
@@ -1385,7 +1386,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					//							mainPanel1.add("North", new JLabel("Select a cycle closing ample computation method:"));
 					//							mainPanel1.add("Center", cycleClosingAmpleMethdsPane);							
 					//							Object[] options1 = {"Run", "Cancel"};
-					//							int optionRtVal1 = JOptionPane.showOptionDialog(Gui.frame, mainPanel1, "Cycle closing ample computation method selection", 
+					//							int optionRtVal1 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel1, "Cycle closing ample computation method selection", 
 					//										JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options1, options1[0]);
 					//							if (optionRtVal1 == 1) {
 					//								// Cancel
@@ -1557,7 +1558,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				mainPanel0.add("North", new JLabel("Select a LPN decomposition method:"));
 				mainPanel0.add("Center", decompMethdsPane);							
 				Object[] options0 = {"Run", "Cancel"};
-				int optionRtVal0 = JOptionPane.showOptionDialog(Gui.frame, mainPanel0, "LPN decomposition methods selection", 
+				int optionRtVal0 = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel0, "LPN decomposition methods selection", 
 						JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options0, options0[0]);
 				if (optionRtVal0 == 1) {
 					// Cancel
@@ -1622,7 +1623,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					mainPanel.add("South", maxVarsPanel);
 
 					Object[] options = {"Run", "Cancel"};
-					int optionRtVal = JOptionPane.showOptionDialog(Gui.frame, mainPanel, "Assign the maximal number of variables in one component", 
+					int optionRtVal = JOptionPane.showOptionDialog(lemaGui.frame, mainPanel, "Assign the maximal number of variables in one component", 
 							JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 					if (optionRtVal == 1) {
 						// Cancel
@@ -1640,7 +1641,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 							//lpnProc.save(directory + separator + lpn.getLabel() + curProcId + ".lpn");
 						}
 						JOptionPane.showMessageDialog(
-								Gui.frame,
+								lemaGui.frame,
 								"The entered maximal number of variables in one component is too small. The LPN was decomposed into processes.",
 								"Warning", JOptionPane.WARNING_MESSAGE);
 						return;
@@ -1660,7 +1661,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			}
 			else if (multipleLPNs.isSelected() && lpnList.getSelectedValues().length < 1) {
 				JOptionPane.showMessageDialog(
-						Gui.frame,
+						lemaGui.frame,
 						"Please select at least 1 more LPN.",
 						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -1678,7 +1679,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				log.addText("Executing:\n" + preprocCmd + "\n");
 				preproc.waitFor();
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Error with preprocessing.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				//e.printStackTrace();
@@ -1708,7 +1709,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 		try {
       lhpnFile.load(directory + separator + lpnFileName);
     } catch (BioSimException e2) {
-      JOptionPane.showMessageDialog(Gui.frame, e2.getMessage(), e2.getTitle(), JOptionPane.ERROR_MESSAGE); 
+      JOptionPane.showMessageDialog(lemaGui.frame, e2.getMessage(), e2.getTitle(), JOptionPane.ERROR_MESSAGE); 
       e2.printStackTrace();
     }
 		Abstraction abstraction = new Abstraction(lhpnFile, this.absProperty);
@@ -1764,7 +1765,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			//				String graphFileName = verifyFile.replace(".lpn", "") + "_sg.dot";
 			//				if (stateGraphArray.length > 1) {
 			//					JOptionPane.showMessageDialog(
-			//							Gui.frame,
+			//							lemaGui.frame,
 			//							"Mutiple state graphs should not be produced.",
 			//							"Error", JOptionPane.ERROR_MESSAGE);		
 			//
@@ -1824,7 +1825,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			try {
         lpn.load(directory + separator + lpnFileName);
       } catch (BioSimException e2) {
-        JOptionPane.showMessageDialog(Gui.frame, e2.getMessage(), e2.getTitle(), JOptionPane.ERROR_MESSAGE); 
+        JOptionPane.showMessageDialog(lemaGui.frame, e2.getMessage(), e2.getTitle(), JOptionPane.ERROR_MESSAGE); 
         e2.printStackTrace();
       }			
 			Options.set_TimingLogFile(directory + separator
@@ -1841,14 +1842,14 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			//				 selectedLPNs.add(curLPN);
 			//			}
 
-			String[] guiLPNList = lpnList.getItems();
-			for (int i=0; i < guiLPNList.length; i++) {
-				String curLPNname = guiLPNList[i];
+			String[] lemaGuiLPNList = lpnList.getItems();
+			for (int i=0; i < lemaGuiLPNList.length; i++) {
+				String curLPNname = lemaGuiLPNList[i];
 				LPN curLPN = new LPN();
 				try {
           curLPN.load(directory + separator + curLPNname);
         } catch (BioSimException e) {
-          JOptionPane.showMessageDialog(Gui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
+          JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE); 
           e.printStackTrace();
         }
 				selectedLPNs.add(curLPN);
@@ -2036,7 +2037,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					out.close();
 				} catch (IOException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(Gui.frame,
+					JOptionPane.showMessageDialog(lemaGui.frame,
 							"Cannot update the file " + s + ".", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
@@ -2056,7 +2057,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					out.close();
 				} catch (IOException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(Gui.frame,
+					JOptionPane.showMessageDialog(lemaGui.frame,
 							"Cannot update the file " + s + ".", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
@@ -2286,8 +2287,8 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 							running.dispose();
 						}
 					});
-					biosim.getExitButton().setActionCommand("Exit program");
-					biosim.getExitButton().addActionListener(
+					lemaGui.getExitButton().setActionCommand("Exit program");
+					lemaGui.getExitButton().addActionListener(
 							new ActionListener() {
 								@Override
 								public void actionPerformed(ActionEvent e) {
@@ -2325,8 +2326,8 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 							running.dispose();
 						}
 					});
-					biosim.getExitButton().setActionCommand("Exit program");
-					biosim.getExitButton().addActionListener(
+					lemaGui.getExitButton().setActionCommand("Exit program");
+					lemaGui.getExitButton().addActionListener(
 							new ActionListener() {
 								@Override
 								public void actionPerformed(ActionEvent e) {
@@ -2411,7 +2412,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				boolean success = false;
 				while ((output = atacsBuffer.readLine()) != null) {
 					if (output.contains("Verification succeeded.")) {
-						JOptionPane.showMessageDialog(Gui.frame,
+						JOptionPane.showMessageDialog(lemaGui.frame,
 								"Verification succeeded!", "Success",
 								JOptionPane.INFORMATION_MESSAGE);
 						success = true;
@@ -2420,7 +2421,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				}
 				atacsBuffer.close();
 				if (exitValue == 143) {
-					JOptionPane.showMessageDialog(Gui.frame,
+					JOptionPane.showMessageDialog(lemaGui.frame,
 							"Verification was" + " canceled by the user.",
 							"Canceled Verification", JOptionPane.ERROR_MESSAGE);
 				}
@@ -2450,14 +2451,14 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Unable to verify model.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
 			if (lhpn.isSelected()) {
 				abstraction.save(tempDir + separator + abstFilename);
-				biosim.addToTree(abstFilename);
+				lemaGui.addToTree(abstFilename);
 			} else if (view.isSelected()) {
 				abstraction.save(directory + separator + abstFilename);
 				work = new File(directory + separator);
@@ -2473,7 +2474,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 						log.addText(command + dotName + "\n");
 						dot.waitFor();
 					} else {
-						JOptionPane.showMessageDialog(Gui.frame,
+						JOptionPane.showMessageDialog(lemaGui.frame,
 								"Unable to view LHPN.", "Error",
 								JOptionPane.ERROR_MESSAGE);
 					}
@@ -2517,7 +2518,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 	*/
 
 	public void saveAs() {
-		String newName = JOptionPane.showInputDialog(Gui.frame,
+		String newName = JOptionPane.showInputDialog(lemaGui.frame,
 				"Enter Verification name:", "Verification Name",
 				JOptionPane.PLAIN_MESSAGE);
 		if (newName == null) {
@@ -2860,7 +2861,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			oldBdd = bddSize.getText();
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to save parameter file!", "Error Saving File",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -2880,7 +2881,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				out.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Cannot add the selected component.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
@@ -2901,7 +2902,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				out.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Cannot add the selected LPN.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
@@ -2938,15 +2939,15 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				scrolls.setMinimumSize(new Dimension(500, 500));
 				scrolls.setPreferredSize(new Dimension(500, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls,
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 						"Circuit View", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No circuit view exists.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view circuit.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -2981,16 +2982,16 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				scrolls.setMinimumSize(new Dimension(500, 500));
 				scrolls.setPreferredSize(new Dimension(500, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls,
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls,
 						"Trace View", JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No trace file exists.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
 			JOptionPane
-			.showMessageDialog(Gui.frame, "Unable to view trace.",
+			.showMessageDialog(lemaGui.frame, "Unable to view trace.",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -3014,15 +3015,15 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				scrolls.setMinimumSize(new Dimension(500, 500));
 				scrolls.setPreferredSize(new Dimension(500, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls, "Run Log",
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls, "Run Log",
 						JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No run log exists.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view run log.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -3063,12 +3064,12 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 			copyin.close();
 			copyout.close();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Gui.frame, "Cannot copy file "
+			JOptionPane.showMessageDialog(lemaGui.frame, "Cannot copy file "
 					+ sourceFile, "Copy Error", JOptionPane.ERROR_MESSAGE);
 		}
 		/* TODO Test Assembly File compilation */
 		if (sourceFile.endsWith(".s") || sourceFile.endsWith(".inst")) {
-			biosim.copySFiles(verifyFile, directory);
+			lemaGui.copySFiles(verifyFile, directory);
 			try {
 				String preprocCmd;
 				if (lema) {
@@ -3095,7 +3096,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 					verifyFile.replace(".inst", ".lpn");
 				}
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Error with preprocessing.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				//e.printStackTrace();
@@ -3106,10 +3107,10 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
         bioModel.load(workDir + separator + sourceFile);
         ModelEditor.saveLPN(bioModel, directory + separator + sourceFile.replace(".xml", ".lpn"));
       } catch (XMLStreamException e) {
-        JOptionPane.showMessageDialog(Gui.frame, "Invalid XML in SBML file", "Error Checking File", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(lemaGui.frame, "Invalid XML in SBML file", "Error Checking File", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
       } catch (IOException e) {
-        JOptionPane.showMessageDialog(Gui.frame, "I/O error when opening SBML file", "Error Opening File", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(lemaGui.frame, "I/O error when opening SBML file", "Error Opening File", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
       }
 			
@@ -3149,7 +3150,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				// user the option to not attempt to open the file.
 				if(fileSize > thresholdSize)
 				{
-					int answer = JOptionPane.showConfirmDialog(Gui.frame,
+					int answer = JOptionPane.showConfirmDialog(lemaGui.frame,
 							"The size of the file exceeds " + thresholdSize + " kB."
 									+ "The file may not open. Do you want to continue?", 
 									"Do you want to continue?", JOptionPane.YES_NO_OPTION);
@@ -3165,7 +3166,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 				log.addText(command + fileName + "\n");
 				dot.waitFor();
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"Unable to view dot file.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
@@ -3178,30 +3179,30 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 	public static boolean canPerformMarkovianAnalysis(LPN lpn) {
 		for (String trans : lpn.getTransitionList()) {
 			if (!lpn.isExpTransitionRateTree(trans)) {
-//				JOptionPane.showMessageDialog(Gui.frame, "LPN has transitions without exponential delay.",
+//				JOptionPane.showMessageDialog(lemaGui.frame, "LPN has transitions without exponential delay.",
 //						"Unable to Perform Markov Chain Analysis", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 			for (String var : lpn.getVariables()) {
 				if (lpn.isRandomBoolAssignTree(trans, var)) {
-//					JOptionPane.showMessageDialog(Gui.frame, "LPN has assignments containing random functions.",
+//					JOptionPane.showMessageDialog(lemaGui.frame, "LPN has assignments containing random functions.",
 //							"Unable to Perform Markov Chain Analysis", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 				if (lpn.isRandomContAssignTree(trans, var)) {
-//					JOptionPane.showMessageDialog(Gui.frame, "LPN has assignments containing random functions.",
+//					JOptionPane.showMessageDialog(lemaGui.frame, "LPN has assignments containing random functions.",
 //							"Unable to Perform Markov Chain Analysis", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 				if (lpn.isRandomIntAssignTree(trans, var)) {
-//					JOptionPane.showMessageDialog(Gui.frame, "LPN has assignments containing random functions.",
+//					JOptionPane.showMessageDialog(lemaGui.frame, "LPN has assignments containing random functions.",
 //							"Unable to Perform Markov Chain Analysis", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 			}
 		}
 		if (lpn.getContVars().length > 0) {
-//			JOptionPane.showMessageDialog(Gui.frame, "LPN contains continuous variables.",
+//			JOptionPane.showMessageDialog(lemaGui.frame, "LPN contains continuous variables.",
 //					"Unable to Perform Markov Chain Analysis", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -3218,11 +3219,11 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
     }
     else if(message.isErrorDialog())
     {
-      JOptionPane.showMessageDialog(Gui.frame, message.getMessage(), message.getTitle(), JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(lemaGui.frame, message.getMessage(), message.getTitle(), JOptionPane.ERROR_MESSAGE);
     }
     else if(message.isDialog())
     {
-      JOptionPane.showMessageDialog(Gui.frame, message.getMessage(), message.getTitle(), JOptionPane.PLAIN_MESSAGE);
+      JOptionPane.showMessageDialog(lemaGui.frame, message.getMessage(), message.getTitle(), JOptionPane.PLAIN_MESSAGE);
     }
     
     

@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.lpnEditor;
+package edu.utah.ece.async.lema.gui.lpnEditor;
 
 /**
  * 
@@ -34,10 +34,12 @@ import javax.swing.JPanel;
 
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
-import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.ibiosim.gui.lpnEditor.AssignmentPanel;
+import edu.utah.ece.async.ibiosim.gui.lpnEditor.PropertyField;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.AbstractRunnableNamedButton;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.Runnable;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.*;
 
 import javax.swing.JCheckBox;
@@ -230,18 +232,18 @@ public class TransitionsPanel extends JPanel implements ActionListener, MouseLis
 	}
 
 	private boolean openGui(String oldName) {
-		int value = JOptionPane.showOptionDialog(Gui.frame, this, "Transition Editor",
+		int value = JOptionPane.showOptionDialog(lemaGui.frame, this, "Transition Editor",
 				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (value == JOptionPane.YES_OPTION) {
 			if (!checkValues()) {
-				 JOptionPane.showMessageDialog(Gui.frame, "Illegal values entered.", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "Illegal values entered.", "Error", JOptionPane.ERROR_MESSAGE); 
 				return false;
 			}
 			if (oldName == null && allVariables != null) {
 				for (int i = 0; i < allVariables.length; i++) {
 					if (allVariables[i] != null) {
 						if (allVariables[i].equals(fields.get(GlobalConstants.ID).getValue())) {
-							 JOptionPane.showMessageDialog(Gui.frame, "Transition id already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
+							 JOptionPane.showMessageDialog(lemaGui.frame, "Transition id already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
 							return false;
 						}
 					}
@@ -250,18 +252,18 @@ public class TransitionsPanel extends JPanel implements ActionListener, MouseLis
 			else if (oldName != null && !oldName.equals(fields.get(GlobalConstants.ID).getValue())) {
 				for (int i = 0; i < allVariables.length; i++) {
 					if (allVariables[i].equals(fields.get(GlobalConstants.ID).getValue())) {
-					  JOptionPane.showMessageDialog(Gui.frame, "Transition id already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
+					  JOptionPane.showMessageDialog(lemaGui.frame, "Transition id already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
 						return false;
 					}
 				}
 			}
 			else if (fields.get(GlobalConstants.ID).getValue() == null) {
-				 JOptionPane.showMessageDialog(Gui.frame, "Enter transition ID.", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "Enter transition ID.", "Error", JOptionPane.ERROR_MESSAGE); 
 				return false;
 			}
 			String id = fields.get(GlobalConstants.ID).getValue();
 			if (!save(id)) {
-			  JOptionPane.showMessageDialog(Gui.frame, "Illegal values entered.", "Error", JOptionPane.ERROR_MESSAGE); 
+			  JOptionPane.showMessageDialog(lemaGui.frame, "Illegal values entered.", "Error", JOptionPane.ERROR_MESSAGE); 
 				return false;
 			}
 
@@ -429,11 +431,11 @@ public class TransitionsPanel extends JPanel implements ActionListener, MouseLis
 		@Override
 		public void run() {
 			if (name == null || name.equals("")) {
-				 JOptionPane.showMessageDialog(Gui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
 				return;
 			}
 			if (list.getSelectedValue() == null && getName().contains("Edit")) {
-				 JOptionPane.showMessageDialog(Gui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "Nothing selected to edit", "Error", JOptionPane.ERROR_MESSAGE); 
 				return;
 			}
 			String variable = null;
@@ -442,12 +444,12 @@ public class TransitionsPanel extends JPanel implements ActionListener, MouseLis
 			}
 			if ((lhpn.getContVars().length == 0) && (lhpn.getBooleanVars().length == 0)
 					&& (lhpn.getIntVars().length == 0)) {
-			  JOptionPane.showMessageDialog(Gui.frame, "Add variables first", "Error", JOptionPane.ERROR_MESSAGE); 
+			  JOptionPane.showMessageDialog(lemaGui.frame, "Add variables first", "Error", JOptionPane.ERROR_MESSAGE); 
 			}
 			else if (getName().contains("Add")
 					&& (list.getItems().length == lhpn.getContVars().length
 							+ lhpn.getBooleanVars().length + lhpn.getIntVars().length)) {
-				 JOptionPane.showMessageDialog(Gui.frame, "All variables have already been assigned in this transition", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "All variables have already been assigned in this transition", "Error", JOptionPane.ERROR_MESSAGE); 
 			}
 			else {
 				AssignmentPanel assignmentPanel = new AssignmentPanel(variable, list, varAssignments,

@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.lpnEditor;
+package edu.utah.ece.async.lema.gui.lpnEditor;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -26,8 +26,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
-import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.ibiosim.gui.lpnEditor.PropertyField;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.*;
 
 import javax.swing.JCheckBox;
@@ -246,11 +247,11 @@ public class AssignmentPanel extends JPanel implements ActionListener {
 	}
 
 	private boolean openGui(String oldName) {
-		int value = JOptionPane.showOptionDialog(Gui.frame, this, "Variable Assignment Editor",
+		int value = JOptionPane.showOptionDialog(lemaGui.frame, this, "Variable Assignment Editor",
 				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (value == JOptionPane.YES_OPTION) {
 			if (!checkValues()) {
-				 JOptionPane.showMessageDialog(Gui.frame, "Illegal values entered.", "Error", JOptionPane.ERROR_MESSAGE); 
+				 JOptionPane.showMessageDialog(lemaGui.frame, "Illegal values entered.", "Error", JOptionPane.ERROR_MESSAGE); 
 				return false;
 			}
 			if (oldName == null) {
@@ -263,7 +264,7 @@ public class AssignmentPanel extends JPanel implements ActionListener {
 				}
 				if (prop != null) {
 					if (prop.containsKey(varBox.getSelectedItem())) {
-					  JOptionPane.showMessageDialog(Gui.frame, "Assignment id already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
+					  JOptionPane.showMessageDialog(lemaGui.frame, "Assignment id already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
 						
 						return false;
 					}
@@ -300,7 +301,7 @@ public class AssignmentPanel extends JPanel implements ActionListener {
 					rateList.addItem(id);
 				}
 				else {
-				  JOptionPane.showMessageDialog(Gui.frame, "Rate assignments must be for continuous variables.", "Error", JOptionPane.ERROR_MESSAGE); 
+				  JOptionPane.showMessageDialog(lemaGui.frame, "Rate assignments must be for continuous variables.", "Error", JOptionPane.ERROR_MESSAGE); 
 					return false;
 				}
 			}
@@ -347,7 +348,7 @@ public class AssignmentPanel extends JPanel implements ActionListener {
 				try {
 					expr[0].intexpr_L(value);
 				} catch (IllegalArgumentException e) {
-					JOptionPane.showMessageDialog(Gui.frame, String.format("Error parsing %s\n",value)+e.getMessage(),
+					JOptionPane.showMessageDialog(lemaGui.frame, String.format("Error parsing %s\n",value)+e.getMessage(),
 							"Parse Error in Property", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}

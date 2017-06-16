@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui;
+package edu.utah.ece.async.lema.gui;
 
 import java.awt.AWTError;
 import java.awt.BorderLayout;
@@ -48,17 +48,10 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.Scanner;
@@ -103,9 +96,7 @@ import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
-import org.jdom2.JDOMException;
 import org.jlibsedml.AbstractTask;
-import org.jlibsedml.ArchiveComponents;
 import org.jlibsedml.Curve;
 import org.jlibsedml.DataGenerator;
 import org.jlibsedml.DataSet;
@@ -117,19 +108,13 @@ import org.jlibsedml.RepeatedTask;
 import org.jlibsedml.Report;
 import org.jlibsedml.SEDMLDocument;
 import org.jlibsedml.SedML;
-import org.jlibsedml.SedMLError;
 import org.jlibsedml.Simulation;
 import org.jlibsedml.Surface;
-import org.jlibsedml.Task;
 import org.jlibsedml.Variable;
 import org.jlibsedml.XMLException;
-import org.jlibsedml.execution.ArchiveModelResolver;
-import org.jlibsedml.modelsupport.BioModelsModelsRetriever;
-import org.jlibsedml.modelsupport.URLResourceRetriever;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.ext.arrays.ArraysConstants;
 import org.sbml.jsbml.ext.comp.CompConstants;
@@ -141,42 +126,22 @@ import org.sbml.jsbml.ext.comp.Submodel;
 import org.sbml.jsbml.ext.fbc.FBCConstants;
 import org.sbml.jsbml.ext.layout.LayoutConstants;
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.ModuleDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
-import org.sbolstandard.core2.SBOLValidate;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceOntology;
 
-import com.apple.eawt.AboutHandler;
-import com.apple.eawt.AppEvent.AboutEvent;
-import com.apple.eawt.AppEvent.PreferencesEvent;
-import com.apple.eawt.AppEvent.QuitEvent;
-import com.apple.eawt.Application;
-import com.apple.eawt.PreferencesHandler;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
-
-// TODO: keep these
-import edu.utah.ece.async.ibiosim.gui.learnView.LearnViewLEMA;
-
-
-import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
-import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerPlugin;
 import uk.ac.ebi.biomodels.ws.BioModelsWSClient;
 import uk.ac.ebi.biomodels.ws.BioModelsWSException;
-import uk.ac.ncl.ico2s.VPRException;
-import uk.ac.ncl.ico2s.VPRTripleStoreException;
-import de.unirostock.sems.cbarchive.ArchiveEntry;
-import de.unirostock.sems.cbarchive.CombineArchive;
-import de.unirostock.sems.cbarchive.CombineArchiveException;
 import edu.utah.ece.async.ibiosim.analysis.util.SEDMLutilities;
-import edu.utah.ece.async.ibiosim.dataModels.biomodel.annotation.AnnotationUtility;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.parser.BioModel;
-import edu.utah.ece.async.ibiosim.dataModels.biomodel.parser.GCM2SBML;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.SBMLutilities;
+import edu.utah.ece.async.lema.gui.learnView.LearnViewLEMA;
+import edu.utah.ece.async.lema.gui.lpnEditor.LHPNEditor;
+import edu.utah.ece.async.ibiosim.gui.verificationView.AbstractionPanel;
+import edu.utah.ece.async.ibiosim.gui.verificationView.VerificationView;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;
 import edu.utah.ece.async.lema.verification.lpn.Translator;
@@ -184,18 +149,16 @@ import edu.utah.ece.async.lema.verification.lpn.properties.BuildProperty;
 import edu.utah.ece.async.ibiosim.dataModels.sbol.SBOLUtility;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.IBioSimPreferences;
-import edu.utah.ece.async.ibiosim.dataModels.util.Message;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
-import edu.utah.ece.async.ibiosim.gui.analysisView.AnalysisThread;
+import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.ibiosim.gui.ResourceManager;
 import edu.utah.ece.async.ibiosim.gui.analysisView.AnalysisView;
 import edu.utah.ece.async.ibiosim.gui.analysisView.Run;
 import edu.utah.ece.async.ibiosim.gui.graphEditor.Graph;
 import edu.utah.ece.async.ibiosim.gui.learnView.DataManager;
 import edu.utah.ece.async.ibiosim.gui.learnView.LearnView;
-import edu.utah.ece.async.ibiosim.gui.lpnEditor.LHPNEditor;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.movie.MovieContainer;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.sbmlcore.ElementsPanel;
-import edu.utah.ece.async.ibiosim.gui.modelEditor.sbol.SBOLInputDialog;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.schematic.ModelEditor;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.schematic.Utils;
 import edu.utah.ece.async.ibiosim.gui.synthesisView.SynthesisView;
@@ -206,9 +169,6 @@ import edu.utah.ece.async.ibiosim.gui.util.Utility;
 import edu.utah.ece.async.ibiosim.gui.util.preferences.EditPreferences;
 import edu.utah.ece.async.ibiosim.gui.util.preferences.PreferencesDialog;
 import edu.utah.ece.async.ibiosim.gui.util.tabs.CloseAndMaxTabbedPane;
-import edu.utah.ece.async.ibiosim.gui.verificationView.AbstractionPanel;
-import edu.utah.ece.async.ibiosim.gui.verificationView.VerificationView;
-import edu.utah.ece.async.ibiosim.gui.Gui.*;
 import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarLexer;
 import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarParser;
 
@@ -224,7 +184,7 @@ import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarParser
  *         Contributors </a>
  * @version %I%
  */
-public class Gui implements Observer, MouseListener, ActionListener, MouseMotionListener, MouseWheelListener {
+public class lemaGui extends Gui implements Observer, MouseListener, ActionListener, MouseMotionListener, MouseWheelListener {
 
 	public static JFrame frame; // Frame where components of the GUI are displayed
 	private JMenuBar menuBar;
@@ -339,34 +299,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 
 	private SBOLDocument			sbolDocument		= null;
 
-	public void OSXSetup() {
-		Application app = Application.getApplication();
-
-		app.setAboutHandler(new AboutHandler() {
-			public void handleAbout(AboutEvent ae) {
-				about();
-			}
-		});
-
-		app.setPreferencesHandler(new PreferencesHandler() {
-			public void handlePreferences(PreferencesEvent pe) {
-				PreferencesDialog.showPreferences(frame);
-				EditPreferences editPreferences = new EditPreferences(frame, async);
-				editPreferences.preferences();
-				tree.setExpandibleIcons(!IBioSimPreferences.INSTANCE.isPlusMinusIconsEnabled());
-				if (sbolDocument != null) {
-					sbolDocument.setDefaultURIprefix(EditPreferences.getDefaultUriPrefix());
-				}
-			}
-		});
-
-		app.setQuitHandler(new QuitHandler() {
-			public void handleQuitRequestWith(QuitEvent event, QuitResponse response) {
-				exit();
-			}
-		});
-	}
-
 	/**
 	 * This is the constructor for the Proj class. It initializes all the input
 	 * fields, puts them on panels, adds the panels to the frame, and then
@@ -374,7 +306,8 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 	 * 
 	 * @throws Exception
 	 */
-	public Gui(boolean lema, boolean atacs, boolean libsbmlFound, boolean lpn) {
+	public lemaGui(boolean lema, boolean atacs, boolean libsbmlFound, boolean lpn) {
+		super(lema,atacs,libsbmlFound,lpn);
 		this.lema = lema;
 		this.atacs = atacs;
 		this.lpn = lpn;
@@ -1231,26 +1164,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher);
 	}
 
-	public String getTitleAt(int i) {
-		return tab.getTitleAt(i).replace("*", "");
-	}
-
-	public static boolean getCheckUndeclared() {
-		Preferences biosimrc = Preferences.userRoot();
-		if (biosimrc.get("biosim.check.undeclared", "").equals("false")) {
-			return false;
-		}
-		return true;
-	}
-
-	public static boolean getCheckUnits() {
-		Preferences biosimrc = Preferences.userRoot();
-		if (biosimrc.get("biosim.check.units", "").equals("false")) {
-			return false;
-		}
-		return true;
-	}
-
 	private void about() {
 		final JFrame f = new JFrame("About");
 		JLabel name;
@@ -1337,51 +1250,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		int y = screenSize.height / 2 - frameSize.height / 2;
 		f.setLocation(x, y);
 		f.setVisible(true);
-	}
-
-	public boolean exit() {
-		int autosave = 0;
-		for (int i = 0; tab != null && i < tab.getTabCount(); i++) {
-			int save = save(i, autosave);
-			if (save == 0) {
-				return false;
-			} else if (save == 2) {
-				autosave = 1;
-			} else if (save == 3) {
-				autosave = 2;
-			}
-		}
-		Preferences biosimrc = Preferences.userRoot();
-		for (int i = 0; i < numberRecentProj; i++) {
-			if (atacs) {
-				biosimrc.put("atacs.recent.project." + i, recentProjects[i].getText());
-				biosimrc.put("atacs.recent.project.path." + i, recentProjectPaths[i]);
-			} else if (lema) {
-				biosimrc.put("lema.recent.project." + i, recentProjects[i].getText());
-				biosimrc.put("lema.recent.project.path." + i, recentProjectPaths[i]);
-			} else {
-				biosimrc.put("biosim.recent.project." + i, recentProjects[i].getText());
-				biosimrc.put("biosim.recent.project.path." + i, recentProjectPaths[i]);
-			}
-		}
-		for (int i = numberRecentProj; i < 10; i++) {
-			if (atacs) {
-				biosimrc.put("atacs.recent.project." + i, "");
-				biosimrc.put("atacs.recent.project.path." + i, "");
-			} else if (lema) {
-				biosimrc.put("lema.recent.project." + i, "");
-				biosimrc.put("lema.recent.project.path." + i, "");
-			} else {
-				biosimrc.put("biosim.recent.project." + i, "");
-				biosimrc.put("biosim.recent.project.path," + i, "");
-			}
-		}
-		System.exit(1);
-		return true;
-	}
-
-	public String getCurrentProjectId() {
-		return currentProjectId;
 	}
 
 	private void createProject(ActionEvent e) {
@@ -4497,205 +4365,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		return newFile;
 	}
 
-	private void performAnalysis(String modelId, String simName) throws Exception {
-		String sbmlFile = root + GlobalConstants.separator + modelId + ".xml";
-		String modelFileName = sbmlFile
-				.split(GlobalConstants.separator)[sbmlFile.split(GlobalConstants.separator).length - 1];
-		String sbmlFileProp;
-		sbmlFileProp = root + GlobalConstants.separator + simName + GlobalConstants.separator + modelFileName;
-		new FileOutputStream(new File(sbmlFileProp)).close();
-		try {
-			FileOutputStream out = new FileOutputStream(new File(
-					root + GlobalConstants.separator + simName + GlobalConstants.separator + simName + ".sim"));
-			out.write((modelFileName + "\n").getBytes());
-			out.close();
-		} catch (IOException e1) {
-			JOptionPane.showMessageDialog(frame, "Unable to save parameter file!", "Error Saving File",
-					JOptionPane.ERROR_MESSAGE);
-		}
-		addToTree(simName);
-		JTabbedPane simTab = new JTabbedPane();
-		simTab.addMouseListener(this);
-		AnalysisView analysisView = new AnalysisView(this, log, simTab, null, root, simName, modelFileName);
-		simTab.addTab("Simulation Options", analysisView);
-		simTab.getComponentAt(simTab.getComponents().length - 1).setName("Simulate");
-		simTab.addTab("Advanced Options", analysisView.getAdvanced());
-		simTab.getComponentAt(simTab.getComponents().length - 1).setName("");
-		String gcmFile = modelFileName.replace(".xml", ".gcm");
-		ModelEditor modelEditor = new ModelEditor(root + GlobalConstants.separator, gcmFile, this, log, true, simName,
-				root + GlobalConstants.separator + simName + GlobalConstants.separator + simName + ".sim", analysisView,
-				false, false);
-		analysisView.setModelEditor(modelEditor);
-		ElementsPanel elementsPanel = new ElementsPanel(modelEditor.getBioModel().getSBMLDocument(), sedmlDocument,
-				simName);
-		modelEditor.setElementsPanel(elementsPanel);
-		addModelViewTab(analysisView, simTab, modelEditor);
-		simTab.addTab("Parameters", modelEditor);
-		simTab.getComponentAt(simTab.getComponents().length - 1).setName("Model Editor");
-		modelEditor.createSBML("", ".", "");
-		new AnalysisThread(analysisView).start(".", true);
-		Graph tsdGraph;
-		if (new File(root + GlobalConstants.separator + simName + GlobalConstants.separator + simName + ".grf")
-				.exists()) {
-			tsdGraph = analysisView.createGraph(
-					root + GlobalConstants.separator + simName + GlobalConstants.separator + simName + ".grf");
-		} else {
-			tsdGraph = analysisView.createGraph(null);
-		}
-		simTab.addTab("TSD Graph", tsdGraph);
-		simTab.getComponentAt(simTab.getComponents().length - 1).setName("TSD Graph");
-		Graph probGraph;
-		if (new File(root + GlobalConstants.separator + simName + GlobalConstants.separator + simName + ".prb")
-				.exists()) {
-			probGraph = analysisView.createProbGraph(
-					root + GlobalConstants.separator + simName + GlobalConstants.separator + simName + ".prb");
-		} else {
-			probGraph = analysisView.createProbGraph(null);
-		}
-		simTab.addTab("Histogram", probGraph);
-		simTab.getComponentAt(simTab.getComponents().length - 1).setName("Histogram");
-		addTab(simName, simTab, null);
-	}
-
-	private HashMap<String, String> importModels(String path, SedML sedml, ArchiveComponents ac)
-			throws SBMLException, FileNotFoundException, XMLStreamException, URISyntaxException {
-		HashMap<String, String> modelMap = new HashMap<String, String>();
-		for (org.jlibsedml.Model model : sedml.getModels()) {
-			if (modelMap.get(model.getSource()) != null) {
-				// model.setSource(modelMap.get(model.getSource()));
-				modelMap.put(model.getId(), modelMap.get(model.getSource()));
-			} else {
-				String newFile = null;
-				if (model.getSource().startsWith("urn:miriam:biomodels.db")) {
-					BioModelsModelsRetriever retriever = new BioModelsModelsRetriever();
-					String docStr = retriever.getModelXMLFor(URI.create(model.getSource()));
-					SBMLDocument doc = SBMLReader.read(docStr);
-					newFile = importSBMLDocument("model", doc);
-				} else if (model.getSource().startsWith("http://")) {
-					URLResourceRetriever retriever = new URLResourceRetriever();
-					String docStr = retriever.getModelXMLFor(URI.create(model.getSource()));
-					SBMLDocument doc = SBMLReader.read(docStr);
-					newFile = importSBMLDocument("model", doc);
-				} else {
-					if (ac == null) {
-						String sbmlFile = path + model.getSource();
-						newFile = importSBML(sbmlFile);
-					} else {
-						ArchiveModelResolver archiveModelResolver = new ArchiveModelResolver(ac);
-						String docStr = archiveModelResolver.getModelXMLFor(model.getSourceURI());
-						// for (IModelContent mod : ac.getModelFiles()) {
-						// System.out.println(mod.getName());
-						// System.out.println(mod.getContents());
-						// }
-						// System.out.println("Reading "+model.getSourceURI());
-						// System.out.println(docStr);
-						SBMLDocument doc = SBMLReader.read(docStr);
-						newFile = importSBMLDocument("model", doc);
-					}
-				}
-				if (newFile == null) {
-					continue;
-				}
-				sedmlDocument.getSedMLModel().getModelWithId(model.getId()).setSource(newFile);
-				model.setSource(newFile);
-				modelMap.put(model.getId(), newFile);
-			}
-		}
-		return modelMap;
-	}
-
-	private void importTasks(SedML sedml, HashMap<String, String> modelMap) throws Exception {
-		for (AbstractTask task : sedml.getTasks()) {
-			org.jlibsedml.Model model = sedml.getModelWithId(task.getModelReference());
-			if (!model.getId().equals(task.getId() + "_model")) {
-				org.jlibsedml.Model oldModel = sedml.getModelWithId(task.getId() + "_model");
-				if (oldModel != null) {
-					sedml.removeModel(oldModel);
-				}
-				model = SEDMLutilities.copyModel(model, task.getId() + "_model");
-			}
-			sedmlDocument.getSedMLModel().addModel(model);
-			Task t = (Task) task;
-			modelMap.put(model.getId(), modelMap.get(task.getModelReference()));
-			t.setModelReference(model.getId());
-			if (modelMap.containsKey(task.getModelReference())) {
-				String modelId = modelMap.get(task.getModelReference()).replace(".xml", "");
-				String analysisId = task.getId();
-				if (overwrite(root + GlobalConstants.separator + analysisId, analysisId)) {
-					new File(root + GlobalConstants.separator + analysisId).mkdir();
-					performAnalysis(modelId, analysisId);
-				}
-			}
-		}
-	}
-
-	private void importOutputs(SedML sedml) throws Exception {
-		for (Output output : sedml.getOutputs()) {
-			if (output.isPlot2d()) {
-				Plot2D plot = (Plot2D) output;
-				Properties graph = new Properties();
-				try {
-					FileOutputStream store = new FileOutputStream(
-							new File(root + GlobalConstants.separator + plot.getId() + ".grf"));
-					graph.store(store, "Graph Data");
-					store.close();
-					log.addText(
-							"Creating graph file:\n" + root + GlobalConstants.separator + plot.getId() + ".grf" + "\n");
-					String graphFile = plot.getId() + ".grf";
-					addToTree(graphFile);
-					// }
-				} catch (Exception except) {
-					JOptionPane.showMessageDialog(Gui.frame, "Unable To Save Graph!", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			} else if (output.isReport()) {
-				Report report = (Report) output;
-				Properties graph = new Properties();
-				try {
-					FileOutputStream store = new FileOutputStream(
-							new File(root + GlobalConstants.separator + report.getId() + ".prb"));
-					graph.store(store, "Probability Data");
-					store.close();
-					log.addText("Creating probability file:\n" + root + GlobalConstants.separator + report.getId()
-					+ ".prb" + "\n");
-					String graphFile = report.getId() + ".prb";
-					addToTree(graphFile);
-
-				} catch (Exception except) {
-					JOptionPane.showMessageDialog(Gui.frame, "Unable To Save Histogram!", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-		for (Output output : sedml.getOutputs()) {
-			if (output.isPlot2d()) {
-				Plot2D plot = (Plot2D) output;
-				String graphFile = plot.getId() + ".grf";
-				for (int j = 0; j < tab.getTabCount(); j++) {
-					if (getTitleAt(j).equals(graphFile)) {
-						removeTab(tab.getComponentAt(j));
-					}
-				}
-				addTab(graphFile,
-						new Graph(null, "Number of molecules", "title", "tsd.printer", root, "Time", this,
-								root + GlobalConstants.separator + graphFile, log, graphFile, true, false),
-						"TSD Graph");
-			} else if (output.isReport()) {
-				Report report = (Report) output;
-				String graphFile = report.getId() + ".prb";
-				for (int j = 0; j < tab.getTabCount(); j++) {
-					if (getTitleAt(j).equals(graphFile)) {
-						removeTab(tab.getComponentAt(j));
-					}
-				}
-				addTab(graphFile,
-						new Graph(null, "Percent", "title", "tsd.printer", root, "Time", this,
-								root + GlobalConstants.separator + graphFile, log, graphFile, false, false),
-						"Histogram");
-			}
-		}
-	}
-
 	/**
 	 * Get the current SBOLDocument saved in iBioSim workspace.
 	 * 
@@ -4704,16 +4373,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 	public SBOLDocument getSBOLDocument() {
 		readSBOLDocument();
 		return sbolDocument;
-	}
-
-	/**
-	 * Return True if the current SBOLDocument in the current iBioSim workspace
-	 * exist. False is returned otherwise.
-	 * 
-	 * @return True if the SBOLDocument is not null. False otherwise.
-	 */
-	public boolean isSetSBOLDocument() {
-		return this.sbolDocument != null ? true : false;
 	}
 
 	/**
@@ -4743,29 +4402,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
-	/**
-	 * Write the current version of the SBOLDocument in iBioSim to the current
-	 * workspace as an SBOL file.
-	 */
-	public void writeSBOLDocument() {
-		String sbolFilename = root + GlobalConstants.separator + currentProjectId + ".sbol";
-		try {
-			sbolDocument.write(sbolFilename);
-		} catch (IOException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(frame, "Unable to write SBOL file.", "Error", JOptionPane.ERROR_MESSAGE);
-
-		} catch (SBOLConversionException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(frame, "Unable to write SBOL file.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	public SEDMLDocument getSEDMLDocument() {
-		// readSEDMLDocument();
-		return sedmlDocument;
-	}
-
 	private void readSEDMLDocument() {
 		String sedmlFilename = root + GlobalConstants.separator + currentProjectId + ".sedml";
 		File sedmlFile = new File(sedmlFilename);
@@ -4784,51 +4420,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 			sedmlDocument = new SEDMLDocument(1, 2);
 			writeSEDMLDocument();
 		}
-	}
-
-	public void writeSEDMLDocument() {
-		String sedmlFilename = root + GlobalConstants.separator + currentProjectId + ".sedml";
-		sedmlDocument.writeDocument(new File(sedmlFilename));
-	}
-
-	private void importSEDMLDocument(String path, SEDMLDocument sedmlDoc, ArchiveComponents ac) throws Exception {
-		SedML sedml = sedmlDoc.getSedMLModel();
-		SedML sedmlModel = sedmlDocument.getSedMLModel();
-		HashMap<String, String> modelMap = null;
-		for (org.jlibsedml.Model model : sedml.getModels()) {
-			if (sedmlModel.getModelWithId(model.getId()) != null) {
-				sedmlModel.removeModel(sedmlModel.getModelWithId(model.getId()));
-			}
-			sedmlModel.addModel(SEDMLutilities.copyModel(model, model.getId()));
-		}
-		modelMap = importModels(path, sedml, ac);
-		for (Simulation simulation : sedml.getSimulations()) {
-			if (sedmlModel.getSimulation(simulation.getId()) != null) {
-				sedmlModel.removeSimulation(sedmlModel.getSimulation(simulation.getId()));
-			}
-			sedmlModel.addSimulation(SEDMLutilities.copySimulation(simulation, simulation.getId()));
-		}
-		for (AbstractTask task : sedml.getTasks()) {
-			if (sedmlModel.getTaskWithId(task.getId()) != null) {
-				sedmlModel.removeTask(sedmlModel.getTaskWithId(task.getId()));
-			}
-			sedmlModel.addTask(SEDMLutilities.copyTask(task, task.getId()));
-		}
-		importTasks(sedml, modelMap);
-		for (DataGenerator dataGenerator : sedml.getDataGenerators()) {
-			if (sedmlModel.getDataGeneratorWithId(dataGenerator.getId()) != null) {
-				sedmlModel.removeDataGenerator(sedmlModel.getDataGeneratorWithId(dataGenerator.getId()));
-			}
-			sedmlModel.addDataGenerator(SEDMLutilities.copyDataGenerator(dataGenerator, dataGenerator.getId()));
-		}
-		for (Output output : sedml.getOutputs()) {
-			if (sedmlModel.getOutputWithId(output.getId()) != null) {
-				sedmlModel.removeOutput(sedmlModel.getOutputWithId(output.getId()));
-			}
-			sedmlModel.addOutput(SEDMLutilities.copyOutput(output, output.getId()));
-		}
-		importOutputs(sedml);
-		writeSEDMLDocument();
 	}
 
 	private void importFile(String fileType, String extension1, String extension2) {
@@ -5351,164 +4942,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
-	private void copySEDML(String oldName, String newName) {
-		SedML sedml = sedmlDocument.getSedMLModel();
-		if (oldName.endsWith(".prb") || oldName.endsWith(".grf")) {
-			String outputId = oldName.replace(".prb", "").replace(".grf", "");
-			String newOutputId = newName.replace(".prb", "").replace(".grf", "");
-			Output output = sedml.getOutputWithId(outputId);
-			if (output != null) {
-				Output newOutput = SEDMLutilities.copyOutput(output, newOutputId);
-				sedml.addOutput(newOutput);
-			}
-		} else if (oldName.endsWith(".xml")) {
-			// Do nothing
-		} else {
-			AbstractTask task = sedml.getTaskWithId(oldName);
-			if (task != null) {
-				AbstractTask newTask = SEDMLutilities.copyTask(task, newName);
-				sedml.addTask(newTask);
-				Output output = sedml.getOutputWithId(oldName + "__graph");
-				Plot2D newGraph = null;
-				if (output != null) {
-					newGraph = (Plot2D) SEDMLutilities.copyOutput(output, newName + "__graph");
-					sedml.addOutput(newGraph);
-				}
-				output = sedml.getOutputWithId(oldName + "__report");
-				Report newReport = null;
-				if (output != null) {
-					newReport = (Report) SEDMLutilities.copyOutput(output, newName + "__report");
-					sedml.addOutput(newReport);
-				}
-				ArrayList<DataGenerator> copy = new ArrayList<DataGenerator>();
-				for (DataGenerator dg : sedml.getDataGenerators()) {
-					for (Variable var : dg.getListOfVariables()) {
-						if (var.getReference().equals(oldName)) {
-							copy.add(dg);
-							break;
-						}
-					}
-				}
-				for (DataGenerator dg : copy) {
-					String newDGid;
-					if (dg.getId().contains(oldName)) {
-						newDGid = dg.getId().replace(oldName, newName);
-					} else {
-						newDGid = newName + "_" + dg.getId();
-					}
-					DataGenerator newDG = SEDMLutilities.copyDataGenerator(dg, newDGid);
-					for (Variable var : newDG.getListOfVariables()) {
-						if (var.getReference().equals(oldName)) {
-							var.setReference(newName);
-						}
-					}
-					sedml.addDataGenerator(newDG);
-					if (newGraph != null) {
-						for (Curve curve : newGraph.getListOfCurves()) {
-							if (curve.getXDataReference().equals(dg.getId())) {
-								curve.setxDataReference(newDG.getId());
-							}
-							if (curve.getYDataReference().equals(dg.getId())) {
-								curve.setyDataReference(newDG.getId());
-							}
-						}
-					}
-					if (newReport != null) {
-						for (DataSet dataSet : newReport.getListOfDataSets()) {
-							if (dataSet.getDataReference().equals(dg.getId())) {
-								dataSet.setDataReference(newDG.getId());
-							}
-						}
-					}
-				}
-				ArrayList<AbstractTask> subTasks = new ArrayList<AbstractTask>();
-				for (AbstractTask subTask : sedml.getTasks()) {
-					if (subTask.getId().startsWith(oldName + "__")) {
-						subTasks.add(subTask);
-					}
-				}
-				for (AbstractTask subTask : subTasks) {
-					String newId = subTask.getId().replace(oldName + "__", newName + "__");
-					newTask = SEDMLutilities.copyTask(subTask, newId);
-					sedml.addTask(newTask);
-					copy = new ArrayList<DataGenerator>();
-					for (DataGenerator dg : sedml.getDataGenerators()) {
-						for (Variable var : dg.getListOfVariables()) {
-							if (var.getReference().equals(subTask.getId())) {
-								copy.add(dg);
-								break;
-							}
-						}
-					}
-					for (DataGenerator dg : copy) {
-						String newDGid;
-						if (dg.getId().contains(oldName + "__")) {
-							newDGid = dg.getId().replace(oldName + "__", newName + "__");
-						} else {
-							newDGid = newName + "_" + dg.getId();
-						}
-						DataGenerator newDG = SEDMLutilities.copyDataGenerator(dg, newDGid);
-						for (Variable var : newDG.getListOfVariables()) {
-							if (var.getReference().equals(subTask.getId())) {
-								var.setReference(newTask.getId());
-							}
-						}
-						sedml.addDataGenerator(newDG);
-						if (newGraph != null) {
-							for (Curve curve : newGraph.getListOfCurves()) {
-								if (curve.getXDataReference().equals(dg.getId())) {
-									curve.setxDataReference(newDG.getId());
-								}
-								if (curve.getYDataReference().equals(dg.getId())) {
-									curve.setyDataReference(newDG.getId());
-								}
-							}
-						}
-						if (newReport != null) {
-							for (DataSet dataSet : newReport.getListOfDataSets()) {
-								if (dataSet.getDataReference().equals(dg.getId())) {
-									dataSet.setDataReference(newDG.getId());
-								}
-							}
-						}
-					}
-				}
-			}
-
-		}
-		writeSEDMLDocument();
-	}
-
-	private void copyDirectory(String srcDir, String destDir, String copyName)
-			throws SBMLException, XMLStreamException, IOException {
-		new File(destDir).mkdir();
-		String[] files = new File(srcDir).list();
-		for (String file : files) {
-			if (file.endsWith(".sbml") || file.equals(".xml")) {
-				SBMLDocument document = SBMLutilities.readSBML(srcDir + GlobalConstants.separator + file);
-				SBMLWriter writer = new SBMLWriter();
-				writer.writeSBMLToFile(document, destDir + GlobalConstants.separator + file);
-			} else if (new File(srcDir + GlobalConstants.separator + file).isFile()) {
-				FileOutputStream out = new FileOutputStream(new File(destDir + GlobalConstants.separator + file));
-				if (file.endsWith(".sim") || file.endsWith(".grf") || file.endsWith(".prb") || file.endsWith(".lrn")) {
-					String ext = file.substring(file.lastIndexOf("."));
-					out = new FileOutputStream(new File(destDir + GlobalConstants.separator + copyName + ext));
-				}
-				FileInputStream in = new FileInputStream(new File(srcDir + GlobalConstants.separator + file));
-				int read = in.read();
-				while (read != -1) {
-					out.write(read);
-					read = in.read();
-				}
-				in.close();
-				out.close();
-			} else if (new File(srcDir + GlobalConstants.separator + file).isDirectory()) {
-				copyDirectory(srcDir + GlobalConstants.separator + file, destDir + GlobalConstants.separator + file,
-						copyName + "__" + file);
-			}
-		}
-	}
-
 	private void renameTabs(String oldName, String rename) {
 		for (int i = 0; i < tab.getTabCount(); i++) {
 			if (getTitleAt(i).equals(tree.getFile()
@@ -5899,41 +5332,7 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
-	/**
-	 * Retrieve the URL of the selected synbiohub repository that the user has selected from the repository dialog.
-	 * @return the URL of the selected synbiohub repository 
-	 */
-	private String getSelectedRepo()
-	{
-		ArrayList<Registry> list = new ArrayList<Registry>();
-		for (Registry r : Registries.get()) {
-			if (!r.isPath()) {
-				list.add(r);
-			}
-		}
-
-		Object[] options = list.toArray();
-
-		if (options.length == 0) {
-			JOptionPane.showMessageDialog(mainPanel, "There are no instances of SynBioHub in the registries list.");
-			return null;
-		}
-
-		Registry registry = (Registry) JOptionPane.showInputDialog(mainPanel,
-				"Select the SynBioHub instance you want to use.", 
-				"Repositories",
-				JOptionPane.QUESTION_MESSAGE, 
-				ResourceManager.getImageIcon("registry.png"), 
-				options, 
-				options[0]);
-		if (registry == null) {
-			return null;
-		}
-		return registry.getLocation();
-	}
-
-	
+		
 	/**
 	 * Create an SBOLDesigner instance for every root ComponentDefinition that is found from the given SBOLDocument.
 	 * @param filePath - The location where the given file is located.
@@ -6247,175 +5646,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		if (count == 100) {
 			JOptionPane.showMessageDialog(frame, "Unable to delete.", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	/**
-	 * This method adds a new project to recent list
-	 */
-	public void addRecentProject(String projDir) {
-		// boolean newOne = true;
-		for (int i = 0; i < numberRecentProj; i++) {
-			if (recentProjectPaths[i].equals(projDir)) {
-				for (int j = 0; j <= i; j++) {
-					String save = recentProjectPaths[j];
-					recentProjects[j].setText(projDir
-							.split(GlobalConstants.separator)[projDir.split(GlobalConstants.separator).length - 1]);
-					openRecent.insert(recentProjects[j], j);
-					recentProjectPaths[j] = projDir;
-					projDir = save;
-				}
-				for (int j = i + 1; j < numberRecentProj; j++) {
-					openRecent.insert(recentProjects[j], j);
-				}
-				return;
-			}
-		}
-		if (numberRecentProj < 10) {
-			numberRecentProj++;
-		}
-		for (int i = 0; i < numberRecentProj; i++) {
-			String save = recentProjectPaths[i];
-			recentProjects[i].setText(
-					projDir.split(GlobalConstants.separator)[projDir.split(GlobalConstants.separator).length - 1]);
-			openRecent.insert(recentProjects[i], i);
-			recentProjectPaths[i] = projDir;
-			projDir = save;
-		}
-	}
-
-	/**
-	 * This method removes a project from the recent list
-	 */
-	public void removeRecentProject(String projDir) {
-		for (int i = 0; i < numberRecentProj; i++) {
-			if (recentProjectPaths[i].equals(projDir)) {
-				for (int j = i; j < numberRecentProj - 1; j++) {
-					recentProjects[j].setText(recentProjects[j + 1].getText());
-					recentProjectPaths[j] = recentProjectPaths[j + 1];
-				}
-				openRecent.remove(recentProjects[numberRecentProj - 1]);
-				recentProjectPaths[numberRecentProj - 1] = "";
-				numberRecentProj--;
-				return;
-			}
-		}
-	}
-
-	/**
-	 * This method removes all projects from the recent list
-	 */
-	public void removeAllRecentProjects() {
-		for (int i = 0; i < numberRecentProj; i++) {
-			openRecent.remove(recentProjects[i]);
-			recentProjectPaths[i] = "";
-		}
-		numberRecentProj = 0;
-	}
-
-	/**
-	 * This method refreshes the menu.
-	 */
-	public void refresh() {
-		mainPanel.remove(tree);
-		tree = new FileTree(new File(root), this, lema, atacs, lpn);
-		topSplit.setLeftComponent(tree);
-		// mainPanel.add(tree, "West");
-		mainPanel.validate();
-	}
-
-	// /**
-	// * This method refreshes the tree.
-	// */
-	// private void refreshTree()
-	// {
-	// mainPanel.remove(tree);
-	// tree = new FileTree(new File(root), this, lema, atacs, lpn);
-	// topSplit.setLeftComponent(tree);
-	// // mainPanel.add(tree, "West");
-	// // updateGCM();
-	// mainPanel.validate();
-	// }
-
-	public void addToTree(String item) {
-		tree.addToTree(item, root);
-		// updateGCM();
-		mainPanel.validate();
-	}
-
-	public void addToTreeNoUpdate(String item) {
-		tree.addToTree(item, root);
-		mainPanel.validate();
-	}
-
-	public void deleteFromTree(String item) {
-		tree.deleteFromTree(item);
-		// updateGCM();
-		mainPanel.validate();
-	}
-
-	public FileTree getFileTree() {
-		return tree;
-	}
-
-	public void markTabDirty(boolean dirty) {
-		int i = tab.getSelectedIndex();
-		if (dirty) {
-			if (i >= 0 && !tab.getTitleAt(i).endsWith("*")) {
-				tab.setTitleAt(i, tab.getTitleAt(i) + "*");
-			}
-		} else {
-			if (i >= 0 && tab.getTitleAt(i).endsWith("*")) {
-				tab.setTitleAt(i, tab.getTitleAt(i).replace("*", ""));
-			}
-		}
-	}
-
-	public void markTabClean(int i) {
-		if (i >= 0 && tab.getTitleAt(i).endsWith("*")) {
-			tab.setTitleAt(i, tab.getTitleAt(i).replace("*", ""));
-		}
-	}
-
-	/**
-	 * This method adds the given Component to a tab.
-	 */
-	public void addTab(String name, Component panel, String tabName) {
-		tab.addTab(name, panel);
-		// panel.addMouseListener(this);
-		if (tabName != null) {
-			tab.getComponentAt(tab.getTabCount() - 1).setName(tabName);
-		} else {
-			tab.getComponentAt(tab.getTabCount() - 1).setName(name);
-		}
-		tab.setSelectedIndex(tab.getTabCount() - 1);
-	}
-
-	/**
-	 * This method removes the given component from the tabs.
-	 */
-	public void removeTab(Component component) {
-		tab.remove(component);
-		if (tab.getTabCount() > 0) {
-			tab.setSelectedIndex(tab.getTabCount() - 1);
-			enableTabMenu(tab.getSelectedIndex());
-		} else {
-			enableTreeMenu();
-		}
-	}
-
-	public void refreshTabListeners() {
-		for (ChangeListener l : tab.getChangeListeners()) {
-			tab.removeChangeListener(l);
-		}
-		for (int i = 0; i < tab.getTabCount(); i++) {
-			if (tab.getComponent(i) instanceof ModelEditor) {
-				((ModelEditor) tab.getComponent(i)).getSchematic().addChangeListener();
-			}
-		}
-	}
-
-	public JTabbedPane getTab() {
-		return tab;
 	}
 
 	/**
@@ -6861,43 +6091,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 	/**
 	 * Saves a circuit from a learn view to the project view
 	 */
-	public void saveGCM(String filename, String path) {
-		try {
-			if (overwrite(root + GlobalConstants.separator + filename, filename)) {
-				FileOutputStream out = new FileOutputStream(new File(root + GlobalConstants.separator + filename));
-				FileInputStream in = new FileInputStream(new File(path));
-				int read = in.read();
-				while (read != -1) {
-					out.write(read);
-					read = in.read();
-				}
-				in.close();
-				out.close();
-
-				BioModel bioModel = new BioModel(root);
-				try {
-					bioModel.load(root + GlobalConstants.separator + filename);
-					GCM2SBML gcm2sbml = new GCM2SBML(bioModel);
-					gcm2sbml.load(root + GlobalConstants.separator + filename);
-					gcm2sbml.convertGCM2SBML(root, filename);
-					String sbmlFile = filename.replace(".gcm", ".xml");
-					bioModel.save(root + GlobalConstants.separator + sbmlFile);
-					addToTree(sbmlFile);
-				} catch (XMLStreamException e) {
-					JOptionPane.showMessageDialog(Gui.frame, "Invalid XML in SBML file", "Error Checking File",
-							JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
-				}
-
-			}
-		} catch (IOException e1) {
-			JOptionPane.showMessageDialog(frame, "Unable to save genetic circuit.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	/**
-	 * Saves a circuit from a learn view to the project view
-	 */
 	public void saveLPN(String filename, String path) {
 		try {
 			if ((lpn && overwrite(root + GlobalConstants.separator + filename, filename))
@@ -6972,16 +6165,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
-	public void updateMenu(boolean logEnabled, boolean othersEnabled) {
-		viewLearnedModel.setEnabled(othersEnabled);
-		viewCoverage.setEnabled(othersEnabled);
-		save.setEnabled(othersEnabled);
-		saveAll.setEnabled(othersEnabled);
-		viewLog.setEnabled(logEnabled);
-		// Do saveas & save button too
-	}
-
-	@Override
 	public void mousePressed(MouseEvent e) {
 		executePopupMenu(e);
 	}
@@ -8555,13 +7738,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
-	public void windowLostFocus() {
-	}
-
-	public JMenuItem getExitButton() {
-		return exit;
-	}
-
 	/**
 	 * This is the main method. It excecutes the BioSim GUI FrontEnd program.
 	 */
@@ -8689,26 +7865,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		new Gui(lemaFlag, atacsFlag, libsbmlFound, lpnFlag);
 	}
 
-	public static boolean isLibsbmlFound() {
-		return SBMLutilities.libsbmlFound;
-	}
-
-	public static boolean isReb2sacFound() {
-		return SBMLutilities.reb2sacFound;
-	}
-
-	public static String getReb2sacExecutable() {
-		return reb2sacExecutable;
-	}
-
-	public static boolean isGeneNetFound() {
-		return SBMLutilities.geneNetFound;
-	}
-
-	public static String getGeneNetExecutable() {
-		return geneNetExecutable;
-	}
-
 	public void refreshLearn(String learnName) {
 		for (int i = 0; i < tab.getTabCount(); i++) {
 			if (getTitleAt(i).equals(learnName)) {
@@ -8747,40 +7903,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 			}
 		}
 	}
-
-	public boolean updateOpenModelEditor(String modelName) {
-
-		for (int i = 0; i < tab.getTabCount(); i++) {
-			String tab = this.getTitleAt(i);
-			if (modelName.equals(tab)) {
-				if (this.tab.getComponentAt(i) instanceof ModelEditor) {
-					((ModelEditor) this.tab.getComponentAt(i)).reload(modelName.replace(".xml", ""));
-					((ModelEditor) this.tab.getComponentAt(i)).refresh();
-					((ModelEditor) this.tab.getComponentAt(i)).getSchematic().getGraph().buildGraph();
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	// private void renameOpenModelEditors(String modelName, String oldname,
-	// String newName)
-	// {
-	// for (int i = 0; i < tab.getTabCount(); i++)
-	// {
-	// String tab = this.getTitleAt(i);
-	// if (modelName.equals(tab))
-	// {
-	// if (this.tab.getComponentAt(i) instanceof ModelEditor)
-	// {
-	// ((ModelEditor) this.tab.getComponentAt(i)).renameComponents(oldname,
-	// newName);
-	// return;
-	// }
-	// }
-	// }
-	// }
 
 	public void updateAsyncViews(String updatedFile) {
 		for (int i = 0; i < tab.getTabCount(); i++) {
@@ -9553,101 +8675,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 		}
 	}
 
-	public String getRoot() {
-		return root;
-	}
-
-	public static boolean checkFiles(String input, String output) {
-		input = input.replaceAll("//", "/");
-		output = output.replaceAll("//", "/");
-		if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-			if (input.toLowerCase().equals(output.toLowerCase())) {
-				Object[] options = { "Ok" };
-				JOptionPane.showOptionDialog(frame, "Files are the same.", "Files Same", JOptionPane.YES_NO_OPTION,
-						JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-				return false;
-			}
-		} else {
-			if (input.equals(output)) {
-				Object[] options = { "Ok" };
-				JOptionPane.showOptionDialog(frame, "Files are the same.", "Files Same", JOptionPane.YES_NO_OPTION,
-						JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public boolean overwrite(String fullPath, String name) {
-		if (new File(fullPath).exists()) {
-			String[] views = canDelete(name);
-			Object[] options = { "Overwrite", "Cancel" };
-			int value;
-			if (views.length == 0) {
-				value = JOptionPane.showOptionDialog(frame, name + " already exists." + "\nDo you want to overwrite?",
-						"Overwrite", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-			} else {
-				String view = "";
-				String gcms = "";
-				for (int i = 0; i < views.length; i++) {
-					if (views[i].endsWith(".gcm")) {
-						gcms += views[i] + "\n";
-					} else {
-						view += views[i] + "\n";
-					}
-				}
-				String message;
-				if (gcms.equals("")) {
-					message = "The file, " + name + ", already exists, and\nit is linked to the following views:\n\n"
-							+ view + "\n\nAre you sure you want to overwrite?";
-				} else if (view.equals("")) {
-					message = "The file, " + name + ", already exists, and\nit is linked to the following gcms:\n\n"
-							+ gcms + "\n\nAre you sure you want to overwrite?";
-				} else {
-					message = "The file, " + name + ", already exists, and\nit is linked to the following views:\n\n"
-							+ views + "\n\nand\nit is linked to the following gcms:\n\n" + gcms
-							+ "\n\nAre you sure you want to overwrite?";
-				}
-
-				JTextArea messageArea = new JTextArea(message);
-				messageArea.setEditable(false);
-				JScrollPane scroll = new JScrollPane();
-				scroll.setMinimumSize(new Dimension(300, 300));
-				scroll.setPreferredSize(new Dimension(300, 300));
-				scroll.setViewportView(messageArea);
-				value = JOptionPane.showOptionDialog(frame, scroll, "Overwrite", JOptionPane.YES_NO_OPTION,
-						JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-				// value = JOptionPane.NO_OPTION;
-			}
-			if (value == JOptionPane.YES_OPTION) {
-				for (int i = 0; i < tab.getTabCount(); i++) {
-					if (getTitleAt(i).equals(name)) {
-						tab.remove(i);
-					}
-				}
-				File dir = new File(fullPath);
-				if (dir.isDirectory()) {
-					deleteDir(dir);
-				} else {
-					System.gc();
-					dir.delete();
-				}
-				return true;
-			}
-			return false;
-		}
-		return true;
-	}
-
-	public void updateTabName(String oldName, String newName) {
-		for (int i = 0; i < tab.getTabCount(); i++) {
-			String tab = this.getTitleAt(i);
-			if (oldName.equals(tab)) {
-				this.tab.setTitleAt(i, newName);
-			}
-		}
-	}
-
 	public boolean updateOpenLHPN(String lhpnName) {
 		for (int i = 0; i < tab.getTabCount(); i++) {
 			String tab = this.getTitleAt(i);
@@ -9930,23 +8957,6 @@ public class Gui implements Observer, MouseListener, ActionListener, MouseMotion
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		Message message = (Message) arg;
-
-		if (message.isConsole()) {
-			System.out.println(message.getMessage());
-		} else if (message.isErrorDialog()) {
-			JOptionPane.showMessageDialog(Gui.frame, message.getMessage(), message.getTitle(),
-					JOptionPane.ERROR_MESSAGE);
-		} else if (message.isDialog()) {
-			JOptionPane.showMessageDialog(Gui.frame, message.getMessage(), message.getTitle(),
-					JOptionPane.PLAIN_MESSAGE);
-		} else if (message.isLog()) {
-			log.addText(message.getMessage());
-		}
 	}
 
 }

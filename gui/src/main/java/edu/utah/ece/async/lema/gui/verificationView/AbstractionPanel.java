@@ -11,15 +11,16 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.verificationView;
+package edu.utah.ece.async.lema.gui.verificationView;
 
 import javax.swing.*;
 
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
-import edu.utah.ece.async.ibiosim.gui.Gui;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
 import edu.utah.ece.async.ibiosim.gui.util.*;
+import edu.utah.ece.async.lema.gui.verificationView.VerificationView;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.properties.AbstractionProperty;
 
@@ -92,15 +93,15 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 		try {
       lhpn.load(directory + separator + verification.verifyFile);
 
-      createGUI(lhpn);
+      createGui(lhpn);
     } catch (BioSimException e) {
-      JOptionPane.showMessageDialog(Gui.frame, e.getMessage(), e.getTitle(),
+      JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(),
         JOptionPane.ERROR_MESSAGE);
       e.printStackTrace();
     }
 	}
 	
-    public void createGUI(LPN lhpn) {
+    public void createGui(LPN lhpn) {
 		// Creates the interesting species JList
 		intSpecies = new JList(lhpn.getVariables());
 		species = new JList(absProperty.listModel);
@@ -238,9 +239,9 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 		LPN lhpn = new LPN();
 		try {
       lhpn.load(directory + separator + lpnFile);
-      createGUI(lhpn);
+      createGui(lhpn);
     } catch (BioSimException e) {
-      JOptionPane.showMessageDialog(Gui.frame, e.getMessage(), e.getTitle(),
+      JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(),
         JOptionPane.ERROR_MESSAGE);
     }
 	}
@@ -447,7 +448,7 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 			}
 			addAbsPanel.add(absList, "Center");
 			String[] options = { "Add", "Cancel" };
-			int value = JOptionPane.showOptionDialog(Gui.frame, addAbsPanel,
+			int value = JOptionPane.showOptionDialog(lemaGui.frame, addAbsPanel,
 					"Add abstraction method", JOptionPane.YES_NO_OPTION,
 					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 			if (value == JOptionPane.YES_OPTION) {
@@ -579,7 +580,7 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 	}
 
 	public void saveAs() {
-		String newName = JOptionPane.showInputDialog(Gui.frame,
+		String newName = JOptionPane.showInputDialog(lemaGui.frame,
 				"Enter Verification name:", "Verification Name",
 				JOptionPane.PLAIN_MESSAGE);
 		if (newName == null) {
@@ -625,7 +626,7 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 					+ absFile + "\n");
 			change = false;
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to save parameter file!", "Error Saving File",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -646,7 +647,7 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 					out.close();
 				} catch (IOException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(Gui.frame,
+					JOptionPane.showMessageDialog(lemaGui.frame,
 							"Cannot add the selected component.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
@@ -677,15 +678,15 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 				scrolls.setMinimumSize(new Dimension(500, 500));
 				scrolls.setPreferredSize(new Dimension(500, 500));
 				scrolls.setViewportView(messageArea);
-				JOptionPane.showMessageDialog(Gui.frame, scrolls, "Run Log",
+				JOptionPane.showMessageDialog(lemaGui.frame, scrolls, "Run Log",
 						JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(Gui.frame,
+				JOptionPane.showMessageDialog(lemaGui.frame,
 						"No run log exists.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(Gui.frame,
+			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to view run log.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}

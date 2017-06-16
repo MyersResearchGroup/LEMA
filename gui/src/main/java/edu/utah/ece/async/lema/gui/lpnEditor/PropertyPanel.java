@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.lpnEditor;
+package edu.utah.ece.async.lema.gui.lpnEditor;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -20,8 +20,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
-import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.ibiosim.gui.lpnEditor.PropertyField;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.*;
 
 /**
@@ -85,7 +86,7 @@ public class PropertyPanel extends JPanel implements ActionListener {
 	}
 
 	private boolean openGui(String oldProperty) {
-		int value = JOptionPane.showOptionDialog(Gui.frame, this, "Property Editor",
+		int value = JOptionPane.showOptionDialog(lemaGui.frame, this, "Property Editor",
 				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (value == JOptionPane.YES_OPTION) {
 			if (!parseProperty()) {

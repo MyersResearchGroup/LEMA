@@ -11,7 +11,7 @@
  * and also available online at <http://www.async.ece.utah.edu/ibiosim/License>.
  *  
  *******************************************************************************/
-package edu.utah.ece.async.ibiosim.gui.lpnEditor;
+package edu.utah.ece.async.lema.gui.lpnEditor;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -25,8 +25,9 @@ import javax.swing.JPanel;
 
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.Utility;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
-import edu.utah.ece.async.ibiosim.gui.Gui;
+import edu.utah.ece.async.ibiosim.gui.lpnEditor.PropertyField;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
+import edu.utah.ece.async.lema.gui.lemaGui;
 import edu.utah.ece.async.lema.verification.lpn.*;
 
 /**
@@ -189,7 +190,7 @@ public class ControlFlowPanel extends JPanel implements ActionListener {
 			oldFlow = oldName.split("\\s");
 		}
 		String[] newFlow = { (String) fromBox.getSelectedItem(), (String) toBox.getSelectedItem() };
-		int value = JOptionPane.showOptionDialog(Gui.frame, this, "Control Flow Editor",
+		int value = JOptionPane.showOptionDialog(lemaGui.frame, this, "Control Flow Editor",
 				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (value == JOptionPane.YES_OPTION) {
 			id = (String) fromBox.getSelectedItem() + " " + (String) toBox.getSelectedItem();
@@ -197,14 +198,14 @@ public class ControlFlowPanel extends JPanel implements ActionListener {
 			newFlow[1] = (String) toBox.getSelectedItem();
 			if (oldName == null) {
 				if (lhpn.containsMovement(newFlow[0], newFlow[1])) {
-				  JOptionPane.showMessageDialog(Gui.frame,  "Movement already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
+				  JOptionPane.showMessageDialog(lemaGui.frame,  "Movement already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
 					
 					return false;
 				}
 			}
 			else if (!oldName.equals(id)) {
 				if (lhpn.containsMovement(newFlow[0], newFlow[1])) {
-				  JOptionPane.showMessageDialog(Gui.frame, "Movement already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
+				  JOptionPane.showMessageDialog(lemaGui.frame, "Movement already exists.", "Error", JOptionPane.ERROR_MESSAGE); 
 					
 					return false;
 				}

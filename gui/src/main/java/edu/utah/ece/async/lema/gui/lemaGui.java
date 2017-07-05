@@ -129,69 +129,8 @@ import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarParser
  */
 public class lemaGui extends Gui implements Observer, MouseListener, ActionListener, MouseMotionListener, MouseWheelListener {
 
-	private JMenuBar menuBar;
-	private JMenu file, openRecent, edit, view, tools, help, importMenu, exportMenu, newMenu, viewModel;
-	private JMenuItem newProj, newSBMLModel, newVhdl, newS, newInst, newLhpn, newProperty;
-	private JMenuItem newSpice;
-	private JMenuItem exit;
-	private JMenuItem importSedml, importSbml, importVhdl;
-	private JMenuItem importS, importInst, importLpn;
-	private JMenuItem importSpice, importProperty;
-	private JMenuItem manual;
-	private JMenuItem bugReport;
-	private JMenuItem about;
-	private JMenuItem openProj;
-	private JMenuItem clearRecent;
-	private JMenuItem pref;
-	private JMenuItem graph;
-	private JMenuItem probGraph, exportCsv, exportDat, exportEps, exportJpg, exportPdf;
-	private JMenuItem exportPng, exportSvg, exportTsd, exportSBML, exportFlatSBML;
-	private JMenuItem exportArchive, exportAvi,	exportMp4;
-	private JMenu exportDataMenu, exportMovieMenu, exportImageMenu;
-	private String root;
-	private String currentProjectId;
-	private FileTree tree;
-	private CloseAndMaxTabbedPane tab;
-	private JToolBar toolbar;
-	private JButton saveButton, runButton, refreshButton, saveasButton, checkButton, exportButton;
-	private JPanel mainPanel;
-	private JSplitPane topSplit;
-	private JSplitPane mainSplit;
-
-	private JPopupMenu popup; // popup
-	// menu
-
-	private KeyEventDispatcher dispatcher;
-
-	private JMenuItem recentProjects[];
-
-	private String recentProjectPaths[];
-
-	private int numberRecentProj;
-
-	private int ShortCutKey;
-
-	private Pattern IDpat = Pattern.compile("([a-zA-Z]|_)([a-zA-Z]|[0-9]|_)*");
-
-	private boolean async;
-	// treeSelected
-	// = false;
-	private String viewer;
-
-	private JMenuItem addModule, addVariable, addBoolean,
-	addPlace, addTransition, addRule, addConstraint, cut, select, undo, redo, copy,
-	rename, delete, moveLeft, moveRight, moveUp, moveDown;
-
-	private JMenuItem save, saveAs, run, refresh, viewTrace, viewLog,
-	viewCoverage, viewLHPN, saveModel, saveAsVerilog, viewLearnedModel, viewModBrowser,
-	createAnal, createLearn, createSbml, createVer, close, closeAll, saveAll,
-	convertToLPN;
-	
-	private boolean lpn;
-
 	private static final String lemaVersion = "2.9.5";
-
-	private SBOLDocument			sbolDocument		= null;
+	private boolean lpn;
 
 	/**
 	 * This is the constructor for the Proj class. It initializes all the input
@@ -2955,26 +2894,6 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			JOptionPane.showMessageDialog(frame, "File cannot be read", "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException e2) {
 			e2.printStackTrace();
-		}
-	}
-
-	public void openModelEditor(String filename, boolean textBased) {
-		File work = new File(root);
-		int i = getTab(filename);
-		if (i != -1) {
-			if (((ModelEditor) tab.getComponentAt(i)).isTextBased() != textBased) {
-				((ModelEditor) tab.getComponentAt(i)).setTextBased(textBased);
-				((ModelEditor) tab.getComponentAt(i)).rebuildGui();
-			}
-			tab.setSelectedIndex(i);
-		} else {
-			String path = work.getAbsolutePath();
-			try {
-				ModelEditor gcm = new ModelEditor(path, filename, this, log, false, null, null, null, textBased, false);
-				addTab(filename, gcm, "Model Editor");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

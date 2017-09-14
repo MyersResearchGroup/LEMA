@@ -72,8 +72,6 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 	private Log log;
 
-	private String separator;
-
 	private lemaGui lemaGui;
 
 	private String seedLpnFile, lhpnFile;
@@ -226,11 +224,10 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	 * displays the frame.
 	 */
 	public LearnViewLEMA(String directory, Log log, lemaGui biosim) {
-		separator = GlobalConstants.separator;
 		this.lemaGui = biosim;
 		this.log = log;
 		this.directory = directory;
-		String[] getFilename = directory.split(separator);
+		String[] getFilename = GlobalConstants.splitPath(directory);
 		lhpnFile = getFilename[getFilename.length - 1] + ".lpn";
 		lrnFile = getFilename[getFilename.length - 1] + ".lrn";
 		Preferences biosimrc = Preferences.userRoot();
@@ -429,8 +426,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		allVars = new ArrayList<String>();
 		Boolean varPresent = false;
 		//Finding the intersection of all the variables present in all data files.
-		for (int i = 1; (new File(directory + separator + "run-" + i + ".tsd")).exists(); i++) {
-			extractVars = new TSDParser(directory + separator + "run-" + i + ".tsd", false);
+		for (int i = 1; (new File(directory + File.separator + "run-" + i + ".tsd")).exists(); i++) {
+			extractVars = new TSDParser(directory + File.separator + "run-" + i + ".tsd", false);
 			datFileVars = extractVars.getSpecies();
 			if (i == 1){
 				allVars.addAll(datFileVars);
@@ -464,15 +461,14 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		//}
 		try {
 			FileInputStream in = new FileInputStream(new File(directory
-					+ separator + lrnFile));
+					+ File.separator + lrnFile));
 			load.load(in);
 			in.close();
 			if (load.containsKey("learn.file")) {
-				String[] getProp = load.getProperty("learn.file").split(
-						separator);
+				String[] getProp = GlobalConstants.splitPath(load.getProperty("learn.file"));
 				seedLpnFile = directory.substring(0, directory.length()
 						- getFilename[getFilename.length - 1].length())
-						+ separator + getProp[getProp.length - 1];
+						+ File.separator + getProp[getProp.length - 1];
 				backgroundField.setText(getProp[getProp.length - 1]);
 
 			}
@@ -483,7 +479,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		}
 		variablesList = new ArrayList<String>();
 		LPN lhpn = new LPN();
-		lhpn.addObserver(this);
+		// TODO: FIX ME NOW
+//		lhpn.addObserver(this);
 		try {
       lhpn.load(seedLpnFile);
     } catch (BioSimException e1) {
@@ -498,7 +495,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		
 		try {
 			FileInputStream in = new FileInputStream(new File(directory
-					+ separator + lrnFile));
+					+ File.separator + lrnFile));
 			load.load(in);
 			in.close();
 			if (load.containsKey("learn.iter")) {
@@ -728,7 +725,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			if (seedLpnFile.endsWith(".xml")) {
 				extension = ".xml";
 			}
-			FileWriter write = new FileWriter(new File(directory + separator + "background"+extension));
+			FileWriter write = new FileWriter(new File(directory + File.separator + "background"+extension));
 			BufferedReader input = new BufferedReader(new FileReader(new File(seedLpnFile)));
 			String line = null;
 			while ((line = input.readLine()) != null) {
@@ -785,7 +782,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		runHolder.add(viewLog);
 		viewLog.addActionListener(this);
 		viewLog.setMnemonic(KeyEvent.VK_R);
-		if (!(new File(directory + separator + lhpnFile).exists())) {
+		if (!(new File(directory + File.separator + lhpnFile).exists())) {
 			viewLhpn.setEnabled(false);
 			saveLhpn.setEnabled(false);
 		}
@@ -793,7 +790,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			viewLhpn.setEnabled(true);
 			saveLhpn.setEnabled(true);
 		}
-		if (!(new File(directory + separator + "run.log").exists())) {
+		if (!(new File(directory + File.separator + "run.log").exists())) {
 			viewLog.setEnabled(false);
 		}
 		// SB
@@ -805,14 +802,14 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		viewCoverage.addActionListener(this);
 		viewVHDL.addActionListener(this);
 		//	viewCoverage.setMnemonic(KeyEvent.VK_R);
-		if (!(new File(directory + separator + "run.cvg").exists())) {
+		if (!(new File(directory + File.separator + "run.cvg").exists())) {
 			viewCoverage.setEnabled(false);
 		}
 		else{
 			viewCoverage.setEnabled(true);
 		}
 		//	String vhdFile = lhpnFile.replace(".lpn",".vhd");
-		//	if (!(new File(directory + separator + vhdFile).exists())) {
+		//	if (!(new File(directory + File.separator + vhdFile).exists())) {
 		viewVHDL.setEnabled(false);
 		//	}
 		//	else{
@@ -1645,7 +1642,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					copy += ".lpn";
 				}
 			}
-			lemaGui.saveLPN(copy, directory + separator + lhpnFile);
+			lemaGui.saveLPN(copy, directory + File.separator + lhpnFile);
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(lemaGui.frame,
 					"Unable to save model.", "Error",
@@ -1656,14 +1653,15 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	public void viewLPN() {
 		try {
 			File work = new File(directory);
-			if (new File(directory + separator + lhpnFile).exists()) {
+			if (new File(directory + File.separator + lhpnFile).exists()) {
 				String dotFile = lhpnFile.replace(".lpn", ".dot");
-				File dot = new File(directory + separator + dotFile);
+				File dot = new File(directory + File.separator + dotFile);
 				dot.delete();
 				LPN lhpn = new LPN();
-				lhpn.addObserver(this);
-				lhpn.load(directory + separator + lhpnFile);
-				lhpn.printDot(directory + separator + dotFile);
+				// TODO: FIX ME NOW
+//				lhpn.addObserver(this);
+				lhpn.load(directory + File.separator + lhpnFile);
+				lhpn.printDot(directory + File.separator + dotFile);
 				//log.addText("Executing:\n" + "atacs -cPllodpl " + lhpnFile);
 				Runtime exec = Runtime.getRuntime();
 				//Process load = exec.exec("atacs -cPllodpl " + lhpnFile, null,
@@ -1674,10 +1672,10 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
 					command = command + " " + dotFile;
-					log.addText(command + " " + directory + separator + dotFile + "\n");
+					log.addText(command + " " + directory + File.separator + dotFile + "\n");
 					exec.exec(command, null, work);
 				} else {
-					File log = new File(directory + separator + "atacs.log");
+					File log = new File(directory + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(
 							log));
 					String line = null;
@@ -1712,8 +1710,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 	public void viewLog() {
 		try {
-			if (new File(directory + separator + "run.log").exists()) {
-				File log = new File(directory + separator + "run.log");
+			if (new File(directory + File.separator + "run.log").exists()) {
+				File log = new File(directory + File.separator + "run.log");
 				BufferedReader input = new BufferedReader(new FileReader(log));
 				String line = null;
 				JTextArea messageArea = new JTextArea();
@@ -1778,8 +1776,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 	public void viewCoverage() {
 		try {
-			if (new File(directory + separator + "run.cvg").exists()) {
-				File cvgRpt = new File(directory + separator + "run.cvg");
+			if (new File(directory + File.separator + "run.cvg").exists()) {
+				File cvgRpt = new File(directory + File.separator + "run.cvg");
 				BufferedReader input = new BufferedReader(new FileReader(cvgRpt));
 				String line = null;
 				JTextArea messageArea = new JTextArea();
@@ -1813,8 +1811,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	public void viewVHDL() {
 		try {
 			String vhdFile = lhpnFile.replace(".lpn", ".vhd");
-			if (new File(directory + separator + vhdFile).exists()) {
-				File vhdlAmsFile = new File(directory + separator + vhdFile);
+			if (new File(directory + File.separator + vhdFile).exists()) {
+				File vhdlAmsFile = new File(directory + File.separator + vhdFile);
 				BufferedReader input = new BufferedReader(new FileReader(vhdlAmsFile));
 				String line = null;
 				JTextArea messageArea = new JTextArea();
@@ -1848,8 +1846,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	public void viewVerilog() {
 		try {
 			String vamsFileName = lhpnFile.replace(".lpn", ".sv");
-			if (new File(directory + separator + vamsFileName).exists()) {
-				File vamsFile = new File(directory + separator + vamsFileName);
+			if (new File(directory + File.separator + vamsFileName).exists()) {
+				File vamsFile = new File(directory + File.separator + vamsFileName);
 				BufferedReader input = new BufferedReader(new FileReader(vamsFile));
 				String line = null;
 				JTextArea messageArea = new JTextArea();
@@ -1883,7 +1881,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		/* TODO: update for new threshold field */
 		try {
 			Properties prop = new Properties();
-			FileInputStream in = new FileInputStream(new File(directory + separator + lrnFile));
+			FileInputStream in = new FileInputStream(new File(directory + File.separator + lrnFile));
 			prop.load(in);
 			in.close();
 			prop.setProperty("learn.file", seedLpnFile);
@@ -2193,8 +2191,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			}
 
 			log.addText("Saving learn parameters to file:\n" + directory
-					+ separator + lrnFile + "\n");
-			FileOutputStream out = new FileOutputStream(new File(directory + separator + lrnFile));
+					+ File.separator + lrnFile + "\n");
+			FileOutputStream out = new FileOutputStream(new File(directory + File.separator + lrnFile));
 			prop.store(out, seedLpnFile);
 			out.close();
 			
@@ -2284,7 +2282,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					"Model Generation Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		new File(directory + separator + lhpnFile).delete();
+		new File(directory + File.separator + lhpnFile).delete();
 		fail = false;
 		try {
 			//File work = new File(directory);
@@ -2361,7 +2359,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 			running.setLocation(x, y);
 			running.setVisible(true);
 			running.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			logFile = new File(directory + separator + "run.log");
+			logFile = new File(directory + File.separator + "run.log");
 			logFile.createNewFile();
 			out = new BufferedWriter(new FileWriter(logFile));
 			cancel.setActionCommand("Cancel");
@@ -2391,7 +2389,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				}
 			}
 			if (execute && !fail) {
-				File lhpn = new File(directory + separator + lhpnFile);
+				File lhpn = new File(directory + File.separator + lhpnFile);
 				lhpn.delete();
 				//	dataToLHPN(running);
 				int moduleNumber = 0;
@@ -2498,7 +2496,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 				LPN g = l.learnModel(directory, moduleNumber, thresholds, tPar, varsWithStables, destabMap, false, false, false, valScaleFactor, delayScaleFactor, failProp, this);
 				
 				// the false parameter above says that it's not generating a net for stable
-				if (new File(seedLpnFile).exists()){ //directory + separator + "complete.lpn").exists()){//
+				if (new File(seedLpnFile).exists()){ //directory + File.separator + "complete.lpn").exists()){//
 					LPN seedLpn = new LPN();
 					try {
             seedLpn.load(seedLpnFile);
@@ -2536,16 +2534,16 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 							l = new LearnModel();
 							//LhpnFile moduleLPN = l.learnModel(directory, log, biosim, j, thresholds, tPar, varsT, destabMap, false, false, valScaleFactor, delayScaleFactor, null);
 							LPN moduleLPN = l.learnModel(directory,  j, thresholds, tPar, varsT, destabMap, false, false, false, valScaleFactor, delayScaleFactor, null, this);
-							// new Lpn2verilog(directory + separator + lhpnFile); //writeSVFile(directory + separator + lhpnFile);
+							// new Lpn2verilog(directory + File.separator + lhpnFile); //writeSVFile(directory + File.separator + lhpnFile);
 							g = mergeLhpns(moduleLPN,g);
 						}	
 					}
 				}
 
-				g.save(directory + separator + lhpnFile);
+				g.save(directory + File.separator + lhpnFile);
 				viewLog.setEnabled(true);
-				//System.out.println(directory + separator + lhpnFile);
-				if (new File(directory + separator + lhpnFile).exists()) {
+				//System.out.println(directory + File.separator + lhpnFile);
+				if (new File(directory + File.separator + lhpnFile).exists()) {
 					//	System.out.println(" exists \n");
 					viewVHDL.setEnabled(true); 		// SB
 					viewVerilog.setEnabled(true); 	// SB
@@ -2781,7 +2779,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		Properties load = new Properties();
 		try {
 			FileInputStream in = new FileInputStream(new File(directory
-					+ separator + lrnFile));
+					+ File.separator + lrnFile));
 			load.load(in);
 			in.close();
 			//int j = 0;
@@ -2874,7 +2872,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		}
 		/*
 		 * try { FileWriter write = new FileWriter( new File(directory +
-		 * separator + "background.gcm")); BufferedReader input = new
+		 * File.separator + "background.gcm")); BufferedReader input = new
 		 * BufferedReader(new FileReader(new File(seedLpnFile))); String line =
 		 * null; while ((line = input.readLine()) != null) { write.write(line +
 		 * "\n"); } write.close(); input.close(); } catch (Exception e) {
@@ -2931,7 +2929,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 
 	public void setDirectory(String directory) {
 		this.directory = directory;
-		String[] getFilename = directory.split(separator);
+		String[] getFilename = GlobalConstants.splitPath(directory);
 		lrnFile = getFilename[getFilename.length - 1] + ".lrn";
 	}
 
@@ -3990,8 +3988,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		HashMap<String, ArrayList<Double>> localThresholds = new HashMap<String, ArrayList<Double>>();
 		int i = 1;
 		try{
-			while (new File(directory + separator + "run-" + i + ".tsd").exists()) {
-				TSDParser tsd = new TSDParser(directory + separator + "run-" + i +".tsd", false);
+			while (new File(directory + File.separator + "run-" + i + ".tsd").exists()) {
+				TSDParser tsd = new TSDParser(directory + File.separator + "run-" + i +".tsd", false);
 				singleFileData = tsd.getData();
 				varNames = tsd.getSpecies();
 				if (i == 1){
@@ -4185,8 +4183,8 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 	HashMap<String, ArrayList<Double>> localThresholds = new HashMap<String, ArrayList<Double>>();
 	int i = 1;
 	try{
-		while (new File(directory + separator + "run-" + i + ".tsd").exists()) {
-			TSDParser tsd = new TSDParser(directory + separator + "run-" + i +".tsd", false);
+		while (new File(directory + File.separator + "run-" + i + ".tsd").exists()) {
+			TSDParser tsd = new TSDParser(directory + File.separator + "run-" + i +".tsd", false);
 			singleFileData = tsd.getData();
 			varNames = tsd.getSpecies();
 			if (i == 1){
@@ -4914,7 +4912,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		try{
 			ArrayList<String> ratePlaces = new ArrayList<String>();
 			ArrayList<String> dmvcPlaces = new ArrayList<String>();
-			File VHDLFile = new File(directory + separator + vhdFile);
+			File VHDLFile = new File(directory + File.separator + vhdFile);
 			VHDLFile.createNewFile();
 			BufferedWriter vhdlAms = new BufferedWriter(new FileWriter(VHDLFile));
 			StringBuffer buffer = new StringBuffer();
@@ -5198,7 +5196,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 		try{
 			ArrayList<String> ratePlaces = new ArrayList<String>();
 			ArrayList<String> dmvcPlaces = new ArrayList<String>();
-			File vamsFile = new File(directory + separator + vamsFileName);
+			File vamsFile = new File(directory + File.separator + vamsFileName);
 			vamsFile.createNewFile();
 			Double rateFactor = valScaleFactor/delayScaleFactor;
 			BufferedWriter vams = new BufferedWriter(new FileWriter(vamsFile));
@@ -5629,7 +5627,7 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					buffer4.append("\t\tV("+reqdVarsL.get(i).getName() + "drive) <+ transition("+reqdVarsL.get(i).getName() + "Val,delay,rtime,ftime);\n");
 				}
 			}
-			BufferedWriter topV = new BufferedWriter(new FileWriter(new File(directory + separator + "top.vams")));
+			BufferedWriter topV = new BufferedWriter(new FileWriter(new File(directory + File.separator + "top.vams")));
 			topV.write("`timescale 1ps/1ps\n\nmodule top();\n\n");
 			if (count != 0){
 				vams.write(");\n");
@@ -5774,9 +5772,9 @@ public class LearnViewLEMA extends JPanel implements ActionListener, Runnable, I
 					}
 				}
 			}
-			l2.save(directory + separator + "tmp.lpn");
-			l1.load(directory + separator + "tmp.lpn");
-			File tmp = new File(directory + separator + "tmp.lpn");
+			l2.save(directory + File.separator + "tmp.lpn");
+			l1.load(directory + File.separator + "tmp.lpn");
+			File tmp = new File(directory + File.separator + "tmp.lpn");
 			tmp.delete();
 		}catch(Exception e){
 			e.printStackTrace();

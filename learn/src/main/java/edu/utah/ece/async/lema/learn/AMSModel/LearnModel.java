@@ -46,8 +46,6 @@ public class LearnModel extends Observable { // added ItemListener SB
 
   //	private String lrnFile;
 
-  private String separator;
-
   private String lhpnFile;
 
   //	private String learnFile;
@@ -587,7 +585,6 @@ public class LearnModel extends Observable { // added ItemListener SB
     ArrayList<Double>> thresh, HashMap<String,Double> tPar, ArrayList<Variable> rVarsL, 
     HashMap<String, ArrayList<String>> dstab, Boolean netForStable, boolean pseudoEnable, 
     boolean transientPlaceReqd, Double vScaleFactor, Double dScaleFactor, String failProp, Observer observer) throws IOException {
-    separator = GlobalConstants.separator;
     // Assign the parameters received from the call to the fields of this class
     this.directory = directory;
     this.reqdVarsL = rVarsL;
@@ -596,7 +593,7 @@ public class LearnModel extends Observable { // added ItemListener SB
     this.valScaleFactor = vScaleFactor;
     this.delayScaleFactor = dScaleFactor;
     this.destabMap = dstab;
-    String[] getFilename = directory.split(separator);
+    String[] getFilename = GlobalConstants.splitPath(directory);
     if (moduleNumber == 0)
       lhpnFile = getFilename[getFilename.length - 1] + ".lpn";
     else
@@ -616,10 +613,10 @@ public class LearnModel extends Observable { // added ItemListener SB
     //unstableTime = tPar.get("unstableTime").doubleValue();
     stableTolerance = tPar.get("stableTolerance").doubleValue();
 
-    new File(directory + separator + lhpnFile).delete();
+    new File(directory + File.separator + lhpnFile).delete();
     try {
 
-      logFile = new File(directory + separator + "run.log");
+      logFile = new File(directory + File.separator + "run.log");
       if (moduleNumber == 0)
         logFile.createNewFile(); //create new file first time
       out = new BufferedWriter(new FileWriter(logFile,true)); //appending
@@ -629,12 +626,12 @@ public class LearnModel extends Observable { // added ItemListener SB
       numTransitions = 0;
 
       out.write("Running: dataToLHPN for module " + moduleNumber +  "\n");
-      TSDParser tsd = new TSDParser(directory + separator + "run-1.tsd",
+      TSDParser tsd = new TSDParser(directory + File.separator + "run-1.tsd",
         false);
       varNames = tsd.getSpecies();
       //String[] learnDir = lrnFile.split("\\.");
-      //File cvgFile = new File(directory + separator + learnDir[0] + ".cvg");
-      File cvgFile = new File(directory + separator + "run.cvg");
+      //File cvgFile = new File(directory + File.separator + learnDir[0] + ".cvg");
+      File cvgFile = new File(directory + File.separator + "run.cvg");
       //cvgFile.createNewFile();
       BufferedWriter coverage = new BufferedWriter(new FileWriter(cvgFile));
       g = new LPN(); // The generated lhpn is stored in this object
@@ -668,7 +665,7 @@ public class LearnModel extends Observable { // added ItemListener SB
       dmvcValuesUnique = new HashMap<String, Properties>();
       constVal = new ArrayList<HashMap<String, String>>();
       int tsdFileNum = 1;
-      while (new File(directory + separator + "run-" + tsdFileNum + ".tsd").exists()) {
+      while (new File(directory + File.separator + "run-" + tsdFileNum + ".tsd").exists()) {
         Properties cProp = new Properties();
         cvgInfo.put(String.valueOf(tsdFileNum), cProp);
         cProp.setProperty("places", String.valueOf(0));
@@ -676,9 +673,9 @@ public class LearnModel extends Observable { // added ItemListener SB
         cProp.setProperty("rates", String.valueOf(0));
         cProp.setProperty("delays", String.valueOf(0));
         if (!netForStable)
-          tsd = new TSDParser(directory + separator + "run-" + tsdFileNum + ".tsd", false);
+          tsd = new TSDParser(directory + File.separator + "run-" + tsdFileNum + ".tsd", false);
         else 
-          tsd = new TSDParser(directory + separator + "runWithStables-" + tsdFileNum + ".tsd", false);
+          tsd = new TSDParser(directory + File.separator + "runWithStables-" + tsdFileNum + ".tsd", false);
         data = tsd.getData();
         varNames = tsd.getSpecies();
         if (((destabMap != null) && (destabMap.size() != 0)) ){ //remove stable if it was added
@@ -702,7 +699,7 @@ public class LearnModel extends Observable { // added ItemListener SB
           out.write("\n");
           tsd.setData(data);
           tsd.setSpecies(varNames);
-          tsd.outputTSD(directory + separator + "runWithStables-" + tsdFileNum + ".tsd");
+          tsd.outputTSD(directory + File.separator + "runWithStables-" + tsdFileNum + ".tsd");
         }
         findReqdVarIndices();
         genBinsRates(thresholds); 
@@ -1564,9 +1561,9 @@ public class LearnModel extends Observable { // added ItemListener SB
       lpnWithPseudo = mergeLhpns(lpnWithPseudo,g);
       //if (pseudoEnable & ((moduleNumber == 0) || (moduleNumber == 1000))){
       if (pseudoEnable) {
-        out.write("Adding pseudo transitions now. It'll be saved in " + directory + separator + "pseudo" + lhpnFile + "\n");
+        out.write("Adding pseudo transitions now. It'll be saved in " + directory + File.separator + "pseudo" + lhpnFile + "\n");
         addPseudo(scaledThresholds);
-        //lpnWithPseudo.save(directory + separator + "pseudo" + lhpnFile);
+        //lpnWithPseudo.save(directory + File.separator + "pseudo" + lhpnFile);
       }
       //		addMetaBins();
       //		addMetaBinTransitions();
@@ -1595,16 +1592,16 @@ public class LearnModel extends Observable { // added ItemListener SB
           l.addObserver(observer);
           LPN moduleLPN = l.learnModel(directory, mNum, thresholds, tPar, varsT, dMap, true, true, false, valScaleFactor, delayScaleFactor, null, observer);
           //true parameter above indicates that the net being generated is for assigning stable
-          // new Lpn2verilog(directory + separator + lhpnFile); //writeSVFile(directory + separator + lhpnFile);
+          // new Lpn2verilog(directory + File.separator + lhpnFile); //writeSVFile(directory + File.separator + lhpnFile);
           //		g = mergeLhpns(moduleLPN,g); // If pseudoTrans never required
           lpnWithPseudo = mergeLhpns(moduleLPN,lpnWithPseudo);
           mNum++;
         }
       }
       out.write("learning module done. Saving stuff and learning other modules.\n");
-      lpnWithPseudo.save(directory + separator + lhpnFile);
-      //new Lpn2verilog(directory + separator + lhpnFile); //writeSVFile(directory + separator + lhpnFile);
-      out.write("Returning " + directory + separator + lhpnFile + "\n");
+      lpnWithPseudo.save(directory + File.separator + lhpnFile);
+      //new Lpn2verilog(directory + File.separator + lhpnFile); //writeSVFile(directory + File.separator + lhpnFile);
+      out.write("Returning " + directory + File.separator + lhpnFile + "\n");
       out.close();
 
       //writeVerilogAMSFile(lhpnFile.replace(".lpn",".vams"));
@@ -2208,7 +2205,7 @@ public class LearnModel extends Observable { // added ItemListener SB
   }
 
   private void genBinsRates(HashMap<String, ArrayList<Double>> localThresholds) { 
-    //			TSDParser tsd = new TSDParser(directory + separator + datFile, biosim,false);
+    //			TSDParser tsd = new TSDParser(directory + File.separator + datFile, biosim,false);
     // genBins data = tsd.getData();
     try{
       reqdVarIndices = new ArrayList<Integer>();
@@ -4573,7 +4570,7 @@ public class LearnModel extends Observable { // added ItemListener SB
     try{
       ArrayList<String> ratePlaces = new ArrayList<String>();
       ArrayList<String> dmvcPlaces = new ArrayList<String>();
-      File VHDLFile = new File(directory + separator + vhdFile);
+      File VHDLFile = new File(directory + File.separator + vhdFile);
       VHDLFile.createNewFile();
       BufferedWriter vhdlAms = new BufferedWriter(new FileWriter(VHDLFile));
       StringBuffer buffer = new StringBuffer();
@@ -4886,7 +4883,7 @@ public class LearnModel extends Observable { // added ItemListener SB
     try{
       ArrayList<String> ratePlaces = new ArrayList<String>();
       ArrayList<String> dmvcPlaces = new ArrayList<String>();
-      File vamsFile = new File(directory + separator + vamsFileName);
+      File vamsFile = new File(directory + File.separator + vamsFileName);
       vamsFile.createNewFile();
       Double rateFactor = valScaleFactor/delayScaleFactor;
       BufferedWriter vams = new BufferedWriter(new FileWriter(vamsFile));
@@ -5343,7 +5340,7 @@ public class LearnModel extends Observable { // added ItemListener SB
           buffer4.append("\t\tV("+reqdVarsL.get(i).getName() + "drive) <+ transition("+reqdVarsL.get(i).getName() + "Val,delay,rtime,ftime);\n");
         }
       }
-      BufferedWriter topV = new BufferedWriter(new FileWriter(new File(directory + separator + "top.vams")));
+      BufferedWriter topV = new BufferedWriter(new FileWriter(new File(directory + File.separator + "top.vams")));
       topV.write("`timescale 1ps/1ps\n\nmodule top();\n\n");
       if (count != 0){
         vams.write(");\n");
@@ -5405,8 +5402,8 @@ public class LearnModel extends Observable { // added ItemListener SB
   //T[] aux = (T[])a.clone();
 
   public LPN mergeLhpns(LPN l1,LPN l2){//(LhpnFile l1, LhpnFile l2){
-    l1.save(directory + separator + "l1.lpn"); //since there's no deep copy method
-    l2.save(directory + separator + "l2.lpn");
+    l1.save(directory + File.separator + "l1.lpn"); //since there's no deep copy method
+    l2.save(directory + File.separator + "l2.lpn");
     String place1 = "p([-\\d]+)", place2 = "P([-\\d]+)";
     String transition1 = "t([-\\d]+)", transition2 = "T([-\\d]+)";
     String pt1 = "pt([-\\d]+)", pt2 = "pt([-\\d]+)";
@@ -5543,18 +5540,18 @@ public class LearnModel extends Observable { // added ItemListener SB
           }
         }
       }
-      l2.save(directory + separator + "tmp.lpn");
+      l2.save(directory + File.separator + "tmp.lpn");
       l3 = new LPN();
-      l3.load(directory + separator + "l1.lpn");
-      l3.load(directory + separator + "tmp.lpn");
+      l3.load(directory + File.separator + "l1.lpn");
+      l3.load(directory + File.separator + "tmp.lpn");
       l2 = new LPN();
-      l2.load(directory + separator + "l2.lpn");
-      File l1File = new File(directory + separator + "l1.lpn");
-      File l2File = new File(directory + separator + "l2.lpn");
+      l2.load(directory + File.separator + "l2.lpn");
+      File l1File = new File(directory + File.separator + "l1.lpn");
+      File l2File = new File(directory + File.separator + "l2.lpn");
       l1File.delete(); l2File.delete();
-      //l2.save(directory + separator + "tmp.lpn");
-      //l1.load(directory + separator + "tmp.lpn");
-      File tmp = new File(directory + separator + "tmp.lpn");
+      //l2.save(directory + File.separator + "tmp.lpn");
+      //l1.load(directory + File.separator + "tmp.lpn");
+      File tmp = new File(directory + File.separator + "tmp.lpn");
       tmp.delete();
     }catch(Exception e){
       e.printStackTrace();

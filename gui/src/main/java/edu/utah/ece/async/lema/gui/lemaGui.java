@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
@@ -85,16 +86,18 @@ import edu.utah.ece.async.lema.gui.learnView.LearnViewLEMA;
 
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerPlugin;
+import edu.utah.ece.async.ibiosim.analysis.Run;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.SBMLutilities;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;
 import edu.utah.ece.async.lema.verification.lpn.Translator;
 import edu.utah.ece.async.lema.verification.lpn.properties.BuildProperty;
+import edu.utah.ece.async.ibiosim.dataModels.util.Executables;
 import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.IBioSimPreferences;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
+import edu.utah.ece.async.ibiosim.dataModels.util.observe.BioObserver;
 import edu.utah.ece.async.ibiosim.gui.analysisView.AnalysisView;
-import edu.utah.ece.async.ibiosim.gui.analysisView.Run;
 import edu.utah.ece.async.ibiosim.gui.graphEditor.Graph;
 import edu.utah.ece.async.ibiosim.gui.learnView.DataManager;
 import edu.utah.ece.async.ibiosim.gui.learnView.LearnView;
@@ -127,7 +130,7 @@ import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarParser
  *         Contributors </a>
  * @version %I%
  */
-public class lemaGui extends Gui implements Observer, MouseListener, ActionListener, MouseMotionListener, MouseWheelListener {
+public class lemaGui extends Gui implements BioObserver, MouseListener, ActionListener, MouseMotionListener, MouseWheelListener {
 
 	private static final String lemaVersion = "2.9.5";
 	private boolean lpn;
@@ -142,7 +145,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 	public lemaGui(boolean lema, boolean atacs, boolean libsbmlFound, boolean lpn) {
 		super(true,false,libsbmlFound);
 		this.lpn = lpn;
-		SBMLutilities.libsbmlFound = libsbmlFound;
+		Executables.libsbmlFound = libsbmlFound;
 		async = lema || atacs;
 		Thread.setDefaultUncaughtExceptionHandler(new Utility.UncaughtExceptionHandler());
 		ENVVAR = System.getenv("LEMA");
@@ -866,22 +869,17 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			}
 			new File(filename).mkdir();
 			try {
-				new FileWriter(new File(filename + GlobalConstants.separator + "LEMA.prj")).close();
+				new FileWriter(new File(filename + File.separator + "LEMA.prj")).close();
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(frame, "Unable to create a new project.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			root = filename;
-			currentProjectId = root.split(GlobalConstants.separator)[root.split(GlobalConstants.separator).length - 1];
+			currentProjectId = GlobalConstants.getFilename(root);
 
 			sedmlDocument = new SEDMLDocument(1, 2);
 			writeSEDMLDocument();
-
-			sbolDocument = new SBOLDocument();
-			sbolDocument.setCreateDefaults(true);
-			sbolDocument.setDefaultURIprefix(EditPreferences.getDefaultUriPrefix());
-			writeSBOLDocument();
 
 			refresh();
 			tab.removeAll();
@@ -935,10 +933,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			projDir = Utility.browse(frame, file, null, JFileChooser.DIRECTORIES_ONLY, "Open", -1);
 			if (projDir.endsWith(".prj")) {
 				biosimrc.put("biosim.general.project_dir", projDir);
-				String[] tempArray = projDir.split(GlobalConstants.separator);
+				String[] tempArray = GlobalConstants.splitPath(projDir);
 				projDir = "";
 				for (int i = 0; i < tempArray.length - 1; i++) {
-					projDir = projDir + tempArray[i] + GlobalConstants.separator;
+					projDir = projDir + tempArray[i] + File.separator;
 				}
 			}
 		} else if (e.getSource() == recentProjects[0]) {
@@ -977,8 +975,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 				if (isProject) {
 					root = projDir;
-					currentProjectId = root
-							.split(GlobalConstants.separator)[root.split(GlobalConstants.separator).length - 1];
+					currentProjectId = GlobalConstants.getFilename(root);
 					readSEDMLDocument();
 					readSBOLDocument();
 					refresh();
@@ -1313,8 +1310,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 		else if (e.getActionCommand().equals("createVerify")) {
 			if (root != null) {
 				for (int i = 0; i < tab.getTabCount(); i++) {
-					if (getTitleAt(i).equals(tree.getFile().split(
-							GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+					if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 						tab.setSelectedIndex(i);
 						if (save(i, 0) == 0) {
 							return;
@@ -1327,14 +1323,14 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				if (verName != null && !verName.trim().equals("")) {
 					verName = verName.trim();
 					// try {
-					if (overwrite(root + GlobalConstants.separator + verName, verName)) {
-						new File(root + GlobalConstants.separator + verName).mkdir();
+					if (overwrite(root + File.separator + verName, verName)) {
+						new File(root + File.separator + verName).mkdir();
 						String sbmlFile = tree.getFile();
-						String[] getFilename = sbmlFile.split(GlobalConstants.separator);
+						String[] getFilename = GlobalConstants.splitPath(sbmlFile);
 						String circuitFileNoPath = getFilename[getFilename.length - 1];
 						try {
-							FileOutputStream out = new FileOutputStream(new File(root + GlobalConstants.separator
-									+ verName.trim() + GlobalConstants.separator + verName.trim() + ".ver"));
+							FileOutputStream out = new FileOutputStream(new File(root + File.separator
+									+ verName.trim() + File.separator + verName.trim() + ".ver"));
 							out.write(("verification.file=" + circuitFileNoPath + "\n").getBytes());
 							out.close();
 						} catch (IOException e1) {
@@ -1342,7 +1338,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 									JOptionPane.ERROR_MESSAGE);
 						}
 						addToTree(verName.trim());
-						VerificationView verify = new VerificationView(root + GlobalConstants.separator + verName, verName,
+						VerificationView verify = new VerificationView(root + File.separator + verName, verName,
 								circuitFileNoPath, log, this, true, false);
 						verify.save();
 						addTab(verName, verify, "Verification");
@@ -1374,19 +1370,19 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			openSBML(tree.getFile());
 		} else if (e.getActionCommand().equals("stateGraph")) {
 			try {
-				String directory = root + GlobalConstants.separator + getTitleAt(tab.getSelectedIndex());
+				String directory = root + File.separator + getTitleAt(tab.getSelectedIndex());
 				File work = new File(directory);
 				for (String f : new File(directory).list()) {
 					if (f.contains("_sg.dot")) {
 						Runtime exec = Runtime.getRuntime();
 						if (System.getProperty("os.name").contentEquals("Linux")) {
-							log.addText("Executing:\ndotty " + directory + GlobalConstants.separator + f + "\n");
+							log.addText("Executing:\ndotty " + directory + File.separator + f + "\n");
 							exec.exec("dotty " + f, null, work);
 						} else if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-							log.addText("Executing:\nopen " + directory + GlobalConstants.separator + f + "\n");
+							log.addText("Executing:\nopen " + directory + File.separator + f + "\n");
 							exec.exec("open " + f, null, work);
 						} else {
-							log.addText("Executing:\ndotty " + directory + GlobalConstants.separator + f + "\n");
+							log.addText("Executing:\ndotty " + directory + File.separator + f + "\n");
 							exec.exec("dotty " + f, null, work);
 						}
 						return;
@@ -1410,8 +1406,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				theFile = filename.substring(filename.lastIndexOf('\\') + 1);
 			}
 			for (int i = 0; i < tab.getTabCount(); i++) {
-				if (getTitleAt(i).equals(tree.getFile().split(
-						GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+				if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 					tab.setSelectedIndex(i);
 					if (save(i, 0) == 0) {
 						return;
@@ -1426,18 +1421,18 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					String file = theFile;
 					String[] findTheFile = file.split("\\.");
 					theFile = findTheFile[0] + ".dot";
-					File dot = new File(root + GlobalConstants.separator + theFile);
+					File dot = new File(root + File.separator + theFile);
 					dot.delete();
 					LPN lhpn = new LPN();
 					lhpn.addObserver(this);
 					try {
-						lhpn.load(directory + GlobalConstants.separator + theFile);
+						lhpn.load(directory + File.separator + theFile);
 					} catch (BioSimException e1) {
-						JOptionPane.showMessageDialog(lemaGui.frame, e1.getMessage(), e1.getTitle(),
+						JOptionPane.showMessageDialog(Gui.frame, e1.getMessage(), e1.getTitle(),
 								JOptionPane.ERROR_MESSAGE);
 						e1.printStackTrace();
 					}
-					lhpn.printDot(directory + GlobalConstants.separator + file);
+					lhpn.printDot(directory + File.separator + file);
 					// String cmd = "atacs -cPllodpl " + file;
 					Runtime exec = Runtime.getRuntime();
 					// Process ATACS = exec.exec(cmd, null, work);
@@ -1446,10 +1441,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					if (dot.exists()) {
 						Preferences biosimrc = Preferences.userRoot();
 						String command = biosimrc.get("biosim.general.graphviz", "");
-						log.addText(command + " " + root + GlobalConstants.separator + theFile + "\n");
+						log.addText(command + " " + root + File.separator + theFile + "\n");
 						exec.exec(command + theFile, null, work);
 					} else {
-						File log = new File(root + GlobalConstants.separator + "atacs.log");
+						File log = new File(root + File.separator + "atacs.log");
 						BufferedReader input = new BufferedReader(new FileReader(log));
 						String line = null;
 						JTextArea messageArea = new JTextArea();
@@ -1500,16 +1495,17 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				// new Run(null);
 				JCheckBox dummy = new JCheckBox();
 				dummy.setSelected(false);
-				JList empty = new JList();
 				// JRadioButton emptyButton = new JRadioButton();
-				Run.createProperties(0, 0, 0, "Print Interval", 1, 1, 1, 1, 0, directory, 314159, 1, 1, new String[0],
-						"tsd.printer", "amount", "false", (directory + theFile).split(GlobalConstants.separator),
-						"none", frame, directory + theFile, 0.1, 0.1, 0.1, 15, 2.0, empty, empty, empty, null, false,
-						false, false);
-				log.addText("Executing:\n" + reb2sacExecutable + " --target.encoding=dot --out=" + directory + out
+				
+//				Run.createProperties(0, 0, 0, "Print Interval", 1, 1, 1, 1, 0, directory, 314159, 1, 1, new String[0],
+//						"tsd.printer", "amount", "false", (directory + theFile).split(GlobalConstants.separator),
+//						"none", frame, directory + theFile, 0.1, 0.1, 0.1, 15, 2.0, empty, empty, empty, null, false,
+//						false, false);
+
+				log.addText("Executing:\n" + Executables.reb2sacExecutable + " --target.encoding=dot --out=" + directory + out
 						+ ".dot " + directory + theFile + "\n");
 				Runtime exec = Runtime.getRuntime();
-				Process graph = exec.exec(reb2sacExecutable + " --target.encoding=dot --out=" + out + ".dot " + theFile,
+				Process graph = exec.exec(Executables.reb2sacExecutable + " --target.encoding=dot --out=" + out + ".dot " + theFile,
 						envp, work);
 				String error = "";
 				String output = "";
@@ -1586,8 +1582,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				theFile = filename.substring(filename.lastIndexOf('\\') + 1);
 			}
 			for (int i = 0; i < tab.getTabCount(); i++) {
-				if (getTitleAt(i).equals(tree.getFile().split(
-						GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+				if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 					tab.setSelectedIndex(i);
 					if (save(i, 0) == 0) {
 						return;
@@ -1603,18 +1598,18 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					String file = theFile;
 					String[] findTheFile = file.split("\\.");
 					theFile = findTheFile[0] + ".dot";
-					File dot = new File(root + GlobalConstants.separator + theFile);
+					File dot = new File(root + File.separator + theFile);
 					dot.delete();
 					LPN lhpn = new LPN();
 					lhpn.addObserver(this);
 					try {
-						lhpn.load(root + GlobalConstants.separator + file);
+						lhpn.load(root + File.separator + file);
 					} catch (BioSimException e1) {
-						JOptionPane.showMessageDialog(lemaGui.frame, e1.getMessage(), e1.getTitle(),
+						JOptionPane.showMessageDialog(Gui.frame, e1.getMessage(), e1.getTitle(),
 								JOptionPane.ERROR_MESSAGE);
 						e1.printStackTrace();
 					}
-					lhpn.printDot(root + GlobalConstants.separator + theFile);
+					lhpn.printDot(root + File.separator + theFile);
 					// String cmd = "atacs -cPllodpl " + file;
 					Runtime exec = Runtime.getRuntime();
 					// Process ATACS = exec.exec(cmd, null, work);
@@ -1623,10 +1618,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					if (dot.exists()) {
 						Preferences biosimrc = Preferences.userRoot();
 						String command = biosimrc.get("biosim.general.graphviz", "");
-						log.addText(command + " " + root + GlobalConstants.separator + theFile + "\n");
+						log.addText(command + " " + root + File.separator + theFile + "\n");
 						exec.exec(command + " " + theFile, null, work);
 					} else {
-						File log = new File(root + GlobalConstants.separator + "atacs.log");
+						File log = new File(root + File.separator + "atacs.log");
 						BufferedReader input = new BufferedReader(new FileReader(log));
 						String line = null;
 						JTextArea messageArea = new JTextArea();
@@ -1677,16 +1672,16 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				// new Run(null);
 				JCheckBox dummy = new JCheckBox();
 				dummy.setSelected(false);
-				JList empty = new JList();
 				// JRadioButton emptyButton = new JRadioButton();
-				Run.createProperties(0, 0, 0, "Print Interval", 1, 1, 1, 1, 0, directory, 314159, 1, 1, new String[0],
-						"tsd.printer", "amount", "false", (directory + theFile).split(GlobalConstants.separator),
-						"none", frame, directory + theFile, 0.1, 0.1, 0.1, 15, 2.0, empty, empty, empty, null, false,
-						false, false);
-				log.addText("Executing:\n" + reb2sacExecutable + " --target.encoding=dot --out=" + directory + out
+
+//				Run.createProperties(0, 0, 0, "Print Interval", 1, 1, 1, 1, 0, directory, 314159, 1, 1, new String[0],
+//						"tsd.printer", "amount", "false", GlobalConstants.splitPath(directory + theFile),
+//						"none", frame, directory + theFile, 0.1, 0.1, 0.1, 15, 2.0, empty, empty, empty, null, false,
+//						false, false);
+				log.addText("Executing:\n" + Executables.reb2sacExecutable + " --target.encoding=dot --out=" + directory + out
 						+ ".dot " + directory + theFile + "\n");
 				Runtime exec = Runtime.getRuntime();
-				Process graph = exec.exec(reb2sacExecutable + " --target.encoding=dot --out=" + out + ".dot " + theFile,
+				Process graph = exec.exec(Executables.reb2sacExecutable + " --target.encoding=dot --out=" + out + ".dot " + theFile,
 						null, work);
 				String error = "";
 				String output = "";
@@ -1753,8 +1748,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				theFile = filename.substring(filename.lastIndexOf('\\') + 1);
 			}
 			for (int i = 0; i < tab.getTabCount(); i++) {
-				if (getTitleAt(i).equals(tree.getFile().split(
-						GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+				if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 					tab.setSelectedIndex(i);
 					if (save(i, 0) == 0) {
 						return;
@@ -1773,17 +1767,18 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			try {
 				// new Run(null);
 				JCheckBox dummy = new JCheckBox();
-				JList empty = new JList();
 				dummy.setSelected(false);
-				Run.createProperties(0, 0, 0.0, "Print Interval", 1.0, 1.0, 1.0, 1.0, 0, directory, 314159L, 1, 1,
-						new String[0], "tsd.printer", "amount", "false",
-						(directory + theFile).split(GlobalConstants.separator), "none", frame, directory + theFile, 0.1,
-						0.1, 0.1, 15, 2.0, empty, empty, empty, null, false, false, false);
-				log.addText("Executing:\n" + reb2sacExecutable + " --target.encoding=xhtml --out=" + directory + out
+
+//				Run.createProperties(0, 0, 0.0, "Print Interval", 1.0, 1.0, 1.0, 1.0, 0, directory, 314159L, 1, 1,
+//						new String[0], "tsd.printer", "amount", "false",
+//						(directory + theFile).split(GlobalConstants.separator), "none", frame, directory + theFile, 0.1,
+//						0.1, 0.1, 15, 2.0, empty, empty, empty, null, false, false, false);
+
+				log.addText("Executing:\n" + Executables.reb2sacExecutable + " --target.encoding=xhtml --out=" + directory + out
 						+ ".xhtml " + directory + theFile + "\n");
 				Runtime exec = Runtime.getRuntime();
 				Process browse = exec.exec(
-						reb2sacExecutable + " --target.encoding=xhtml --out=" + out + ".xhtml " + theFile, envp, work);
+				  Executables.reb2sacExecutable + " --target.encoding=xhtml --out=" + out + ".xhtml " + theFile, envp, work);
 				String error = "";
 				String output = "";
 				InputStream reb = browse.getErrorStream();
@@ -1870,7 +1865,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 						else if (component instanceof ModelEditor) {
 							((ModelEditor) component).saveParams(false, "", true, null);
 						} else if (component instanceof AnalysisView) {
-							((AnalysisView) component).save("");
+							((AnalysisView) component).save();
 						} else if (component instanceof MovieContainer) {
 							((MovieContainer) component).savePreferences();
 						}
@@ -1886,7 +1881,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			} else if (comp instanceof JScrollPane) {
 				String fileName = getTitleAt(tab.getSelectedIndex());
 				try {
-					File output = new File(root + GlobalConstants.separator + fileName);
+					File output = new File(root + File.separator + fileName);
 					output.createNewFile();
 					FileOutputStream outStream = new FileOutputStream(output);
 					Component[] array = ((JScrollPane) comp).getComponents();
@@ -1899,7 +1894,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 						}
 					}
 					outStream.close();
-					log.addText("Saving file:\n" + root + GlobalConstants.separator + fileName);
+					log.addText("Saving file:\n" + root + File.separator + fileName);
 					this.updateAsyncViews(fileName);
 				} catch (Exception e1) {
 					JOptionPane.showMessageDialog(frame, "Error saving file " + fileName, "Error",
@@ -2060,7 +2055,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					}
 				}
 				try {
-					File output = new File(root + GlobalConstants.separator + newName);
+					File output = new File(root + File.separator + newName);
 					output.createNewFile();
 					FileOutputStream outStream = new FileOutputStream(output);
 					Component[] array = ((JScrollPane) comp).getComponents();
@@ -2073,8 +2068,8 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 						}
 					}
 					outStream.close();
-					log.addText("Saving file:\n" + root + GlobalConstants.separator + newName);
-					File oldFile = new File(root + GlobalConstants.separator + fileName);
+					log.addText("Saving file:\n" + root + File.separator + newName);
+					File oldFile = new File(root + File.separator + fileName);
 					oldFile.delete();
 					tab.setTitleAt(tab.getSelectedIndex(), newName);
 					addToTree(newName);
@@ -2168,9 +2163,6 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			EditPreferences editPreferences = new EditPreferences(frame, async);
 			editPreferences.preferences();
 			tree.setExpandibleIcons(!IBioSimPreferences.INSTANCE.isPlusMinusIconsEnabled());
-			if (sbolDocument != null) {
-				sbolDocument.setDefaultURIprefix(EditPreferences.getDefaultUriPrefix());
-			}
 		} else if (e.getSource() == clearRecent) {
 			removeAllRecentProjects();
 		} else if ((e.getSource() == openProj) || (e.getSource() == recentProjects[0])
@@ -2359,8 +2351,8 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 							"A model ID can only contain letters, digits, and underscores.\nIt also cannot start with a digit.",
 							"Invalid ID", JOptionPane.ERROR_MESSAGE);
 				} else {
-					if (overwrite(root + GlobalConstants.separator + lhpnName, lhpnName)) {
-						File f = new File(root + GlobalConstants.separator + lhpnName);
+					if (overwrite(root + File.separator + lhpnName, lhpnName)) {
+						File f = new File(root + File.separator + lhpnName);
 						f.createNewFile();
 						LPN lpn = new LPN();
 						lpn.addObserver(this);
@@ -2369,7 +2361,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 						if (i != -1) {
 							tab.remove(i);
 						}
-						LHPNEditor lhpn = new LHPNEditor(root + GlobalConstants.separator, f.getName(), null, this);
+						LHPNEditor lhpn = new LHPNEditor(root + File.separator, f.getName(), null, this);
 						// lhpn.addMouseListener(this);
 						addTab(f.getName(), lhpn, "LHPN Editor");
 						addToTree(f.getName());
@@ -2399,15 +2391,15 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			return;
 		} else if (!filename.equals("")) {
 			biosimrc.put("biosim.general.import_dir", filename);
-			String[] file = filename.split(GlobalConstants.separator);
+			String[] file = GlobalConstants.splitPath(filename);
 			try {
 				if (new File(filename).exists()) {
 					file[file.length - 1] = file[file.length - 1].replaceAll("[^a-zA-Z0-9_.]+", "_");
 					if (Character.isDigit(file[file.length - 1].charAt(0))) {
 						file[file.length - 1] = "M" + file[file.length - 1];
 					}
-					if (checkFiles(root + GlobalConstants.separator + file[file.length - 1], filename.trim())) {
-						if (overwrite(root + GlobalConstants.separator + file[file.length - 1],
+					if (checkFiles(root + File.separator + file[file.length - 1], filename.trim())) {
+						if (overwrite(root + File.separator + file[file.length - 1],
 								file[file.length - 1])) {
 							// Identify which LPN format is imported.
 							BufferedReader input = new BufferedReader(new FileReader(filename));
@@ -2434,7 +2426,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 								Translator t1 = new Translator();
 								t1.convertLPN2SBML(filename, "");
 								t1.setFilename(
-										root + GlobalConstants.separator + outFileName.replace(".lpn", ".xml"));
+										root + File.separator + outFileName.replace(".lpn", ".xml"));
 								t1.outputSBML();
 								outFileName = outFileName.replace(".lpn", ".xml");
 								addToTree(outFileName);
@@ -2445,7 +2437,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 								PlatuGrammarParser antlrParser = new PlatuGrammarParser(tokenStream);
 								Set<LPN> lpnSet = antlrParser.lpn();
 								for (LPN lpn : lpnSet) {
-									lpn.save(root + GlobalConstants.separator + lpn.getLabel() + ".lpn");
+									lpn.save(root + File.separator + lpn.getLabel() + ".lpn");
 									addToTree(lpn.getLabel() + ".lpn");
 								}
 							}
@@ -2455,7 +2447,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				if (filename.substring(filename.length() - 2, filename.length()).equals(".g")) {
 					// log.addText(filename + file[file.length - 1]);
 					File work = new File(root);
-					String oldName = root + GlobalConstants.separator + file[file.length - 1];
+					String oldName = root + File.separator + file[file.length - 1];
 					// String newName = oldName.replace(".lpn",
 					// "_NEW.g");
 					Process atacs = Runtime.getRuntime().exec("atacs -lgsl " + oldName, null, work);
@@ -2490,12 +2482,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 	// TODO: keeper
 	private void createLearn(String modelFile) {
 		if (root != null) {
-			String modelFileName = modelFile
-					.split(GlobalConstants.separator)[modelFile.split(GlobalConstants.separator).length - 1];
+			String modelFileName = GlobalConstants.getFilename(modelFile);
 			String modelId = modelFileName.replace(".xml", "").replace(".lpn", "");
 			for (int i = 0; i < tab.getTabCount(); i++) {
-				if (getTitleAt(i).equals(tree.getFile().split(
-						GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+				if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 					tab.setSelectedIndex(i);
 					if (save(i, 0) == 0) {
 						return;
@@ -2513,14 +2503,14 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			}
 			lrnName = lrnName.trim();
 			// try {
-			if (overwrite(root + GlobalConstants.separator + lrnName, lrnName)) {
-				new File(root + GlobalConstants.separator + lrnName).mkdir();
+			if (overwrite(root + File.separator + lrnName, lrnName)) {
+				new File(root + File.separator + lrnName).mkdir();
 				// new FileWriter(new File(root + separator +
 				// lrnName + separator
 				// +
 				// ".lrn")).close();
 				String sbmlFile = tree.getFile();
-				String[] getFilename = sbmlFile.split(GlobalConstants.separator);
+				String[] getFilename = GlobalConstants.splitPath(sbmlFile);
 				String sbmlFileNoPath = getFilename[getFilename.length - 1];
 				if (sbmlFileNoPath.endsWith(".vhd")) {
 					try {
@@ -2534,8 +2524,8 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					}
 				}
 				try {
-					FileOutputStream out = new FileOutputStream(new File(root + GlobalConstants.separator
-							+ lrnName.trim() + GlobalConstants.separator + lrnName.trim() + ".lrn"));
+					FileOutputStream out = new FileOutputStream(new File(root + File.separator
+							+ lrnName.trim() + File.separator + lrnName.trim() + ".lrn"));
 					out.write(("learn.file=" + sbmlFileNoPath + "\n").getBytes());
 					out.close();
 				} catch (IOException e1) {
@@ -2545,17 +2535,17 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				addToTree(lrnName);
 				JTabbedPane lrnTab = new JTabbedPane();
 				lrnTab.addMouseListener(this);
-				DataManager data = new DataManager(root + GlobalConstants.separator + lrnName, this);
+				DataManager data = new DataManager(root + File.separator + lrnName, this);
 				lrnTab.addTab("Data Manager", data);
 				lrnTab.getComponentAt(lrnTab.getComponents().length - 1).setName("Data Manager");
-				LearnViewLEMA learn = new LearnViewLEMA(root + GlobalConstants.separator + lrnName, log, this);
+				LearnViewLEMA learn = new LearnViewLEMA(root + File.separator + lrnName, log, this);
 				lrnTab.addTab("Learn Options", learn);
 				lrnTab.getComponentAt(lrnTab.getComponents().length - 1).setName("Learn Options");
 				lrnTab.addTab("Advanced Options", learn.getAdvancedOptionsPanel());
 				lrnTab.getComponentAt(lrnTab.getComponents().length - 1).setName("Advanced Options");
 				Graph tsdGraph;
 				tsdGraph = new Graph(null, "Number of molecules", lrnName + " data", "tsd.printer",
-						root + GlobalConstants.separator + lrnName, "Time", this, null, log, null, true, false);
+						root + File.separator + lrnName, "Time", this, null, log, null, true, false);
 				lrnTab.addTab("TSD Graph", tsdGraph);
 				lrnTab.getComponentAt(lrnTab.getComponents().length - 1).setName("TSD Graph");
 				addTab(lrnName, lrnTab, null);
@@ -2569,11 +2559,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 	private void viewModel() {
 		try {
 			if (tree.getFile().length() >= 4 && tree.getFile().substring(tree.getFile().length() - 4).equals(".lpn")) {
-				String filename = tree.getFile()
-						.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
+				String filename = GlobalConstants.getFilename(tree.getFile());
 				String[] findTheFile = filename.split("\\.");
 				String theFile = findTheFile[0] + ".dot";
-				File dot = new File(root + GlobalConstants.separator + theFile);
+				File dot = new File(root + File.separator + theFile);
 				dot.delete();
 				LPN lhpn = new LPN();
 				lhpn.addObserver(this);
@@ -2583,16 +2572,16 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(), JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
 				}
-				lhpn.printDot(root + GlobalConstants.separator + theFile);
+				lhpn.printDot(root + File.separator + theFile);
 				File work = new File(root);
 				Runtime exec = Runtime.getRuntime();
 				if (dot.exists()) {
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
-					log.addText(command + " " + root + GlobalConstants.separator + theFile + "\n");
+					log.addText(command + " " + root + File.separator + theFile + "\n");
 					exec.exec(command + " " + theFile, null, work);
 				} else {
-					File log = new File(root + GlobalConstants.separator + "atacs.log");
+					File log = new File(root + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(log));
 					String line = null;
 					JTextArea messageArea = new JTextArea();
@@ -2612,11 +2601,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 			} else if (tree.getFile().length() >= 2
 					&& tree.getFile().substring(tree.getFile().length() - 2).equals(".g")) {
-				String filename = tree.getFile()
-						.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
+				String filename = GlobalConstants.getFilename(tree.getFile());
 				String[] findTheFile = filename.split("\\.");
 				String theFile = findTheFile[0] + ".dot";
-				File dot = new File(root + GlobalConstants.separator + theFile);
+				File dot = new File(root + File.separator + theFile);
 				dot.delete();
 				String cmd = "atacs -cPlgodpe " + filename;
 				File work = new File(root);
@@ -2627,10 +2615,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				if (dot.exists()) {
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
-					log.addText(command + " " + root + GlobalConstants.separator + theFile + "\n");
+					log.addText(command + " " + root + File.separator + theFile + "\n");
 					exec.exec(command + " " + theFile, null, work);
 				} else {
-					File log = new File(root + GlobalConstants.separator + "atacs.log");
+					File log = new File(root + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(log));
 					String line = null;
 					JTextArea messageArea = new JTextArea();
@@ -2742,8 +2730,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 			} else if (tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".csp")) {
-				String filename = tree.getFile()
-						.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
+				String filename = GlobalConstants.getFilename(tree.getFile());
 				String cmd = "atacs -lcslllodpl " + filename;
 				File work = new File(root);
 				Runtime exec = Runtime.getRuntime();
@@ -2753,13 +2740,13 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				String[] findTheFile = filename.split("\\.");
 				// String directory = "";
 				String theFile = findTheFile[0] + ".dot";
-				if (new File(root + GlobalConstants.separator + theFile).exists()) {
+				if (new File(root + File.separator + theFile).exists()) {
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
 					log.addText(command + " " + root + theFile + "\n");
 					exec.exec(command + " " + theFile, null, work);
 				} else {
-					File log = new File(root + GlobalConstants.separator + "atacs.log");
+					File log = new File(root + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(log));
 					String line = null;
 					JTextArea messageArea = new JTextArea();
@@ -2779,8 +2766,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 			} else if (tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".hse")) {
-				String filename = tree.getFile()
-						.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
+				String filename = GlobalConstants.getFilename(tree.getFile());
 				String cmd = "atacs -lhslllodpl " + filename;
 				File work = new File(root);
 				Runtime exec = Runtime.getRuntime();
@@ -2790,13 +2776,13 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				String[] findTheFile = filename.split("\\.");
 				// String directory = "";
 				String theFile = findTheFile[0] + ".dot";
-				if (new File(root + GlobalConstants.separator + theFile).exists()) {
+				if (new File(root + File.separator + theFile).exists()) {
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
 					log.addText(command + " " + root + theFile + "\n");
 					exec.exec(command + " " + theFile, null, work);
 				} else {
-					File log = new File(root + GlobalConstants.separator + "atacs.log");
+					File log = new File(root + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(log));
 					String line = null;
 					JTextArea messageArea = new JTextArea();
@@ -2816,8 +2802,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 			} else if (tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".unc")) {
-				String filename = tree.getFile()
-						.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
+				String filename = GlobalConstants.getFilename(tree.getFile());
 				String cmd = "atacs -lxodps " + filename;
 				File work = new File(root);
 				Runtime exec = Runtime.getRuntime();
@@ -2827,13 +2812,13 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				String[] findTheFile = filename.split("\\.");
 				// String directory = "";
 				String theFile = findTheFile[0] + ".dot";
-				if (new File(root + GlobalConstants.separator + theFile).exists()) {
+				if (new File(root + File.separator + theFile).exists()) {
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
 					log.addText(command + " " + root + theFile + "\n");
 					exec.exec(command + " " + theFile, null, work);
 				} else {
-					File log = new File(root + GlobalConstants.separator + "atacs.log");
+					File log = new File(root + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(log));
 					String line = null;
 					JTextArea messageArea = new JTextArea();
@@ -2853,8 +2838,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 			} else if (tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".rsg")) {
-				String filename = tree.getFile()
-						.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
+				String filename = GlobalConstants.getFilename(tree.getFile());
 				String cmd = "atacs -lsodps " + filename;
 				File work = new File(root);
 				Runtime exec = Runtime.getRuntime();
@@ -2864,13 +2848,13 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				String[] findTheFile = filename.split("\\.");
 				// String directory = "";
 				String theFile = findTheFile[0] + ".dot";
-				if (new File(root + GlobalConstants.separator + theFile).exists()) {
+				if (new File(root + File.separator + theFile).exists()) {
 					Preferences biosimrc = Preferences.userRoot();
 					String command = biosimrc.get("biosim.general.graphviz", "");
 					log.addText(command + " " + root + theFile + "\n");
 					exec.exec(command + " " + theFile, null, work);
 				} else {
-					File log = new File(root + GlobalConstants.separator + "atacs.log");
+					File log = new File(root + File.separator + "atacs.log");
 					BufferedReader input = new BufferedReader(new FileReader(log));
 					String line = null;
 					JTextArea messageArea = new JTextArea();
@@ -3131,19 +3115,19 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 												JOptionPane.PLAIN_MESSAGE, null, OPTIONS, OPTIONS[0]);
 										if (value == YES_OPTION) {
 											((AnalysisView) ((JTabbedPane) tab.getComponentAt(index)).getComponent(i))
-											.save("");
+											.save();
 										} else if (value == CANCEL_OPTION) {
 											return 0;
 										} else if (value == YES_TO_ALL_OPTION) {
 											((AnalysisView) ((JTabbedPane) tab.getComponentAt(index)).getComponent(i))
-											.save("");
+											.save();
 											autosave = 1;
 										} else if (value == NO_TO_ALL_OPTION) {
 											autosave = 2;
 										}
 									} else if (autosave == 1) {
 										((AnalysisView) ((JTabbedPane) tab.getComponentAt(index)).getComponent(i))
-										.save("");
+										.save();
 									}
 								}
 							} else if (((JTabbedPane) tab.getComponentAt(index))
@@ -3207,42 +3191,6 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 											if (((JTabbedPane) tab.getComponentAt(index))
 													.getComponent(i) instanceof LearnView) {
 												((LearnView) ((JTabbedPane) tab.getComponentAt(index)).getComponent(i))
-												.save();
-											}
-										}
-									}
-								}
-								if (((JTabbedPane) tab.getComponentAt(index)).getComponent(i) instanceof LearnViewLEMA) {
-									if (((LearnViewLEMA) ((JTabbedPane) tab.getComponentAt(index)).getComponent(i))
-											.hasChanged()) {
-										if (autosave == 0) {
-											int value = JOptionPane.showOptionDialog(frame,
-													"Do you want to save learn option changes for " + getTitleAt(index)
-													+ "?",
-													"Save Changes", JOptionPane.YES_NO_CANCEL_OPTION,
-													JOptionPane.PLAIN_MESSAGE, null, OPTIONS, OPTIONS[0]);
-											if (value == YES_OPTION) {
-												if (((JTabbedPane) tab.getComponentAt(index))
-														.getComponent(i) instanceof LearnViewLEMA) {
-													((LearnViewLEMA) ((JTabbedPane) tab.getComponentAt(index))
-															.getComponent(i)).save();
-												}
-											} else if (value == CANCEL_OPTION) {
-												return 0;
-											} else if (value == YES_TO_ALL_OPTION) {
-												if (((JTabbedPane) tab.getComponentAt(index))
-														.getComponent(i) instanceof LearnViewLEMA) {
-													((LearnViewLEMA) ((JTabbedPane) tab.getComponentAt(index))
-															.getComponent(i)).save();
-												}
-												autosave = 1;
-											} else if (value == NO_TO_ALL_OPTION) {
-												autosave = 2;
-											}
-										} else if (autosave == 1) {
-											if (((JTabbedPane) tab.getComponentAt(index))
-													.getComponent(i) instanceof LearnViewLEMA) {
-												((LearnViewLEMA) ((JTabbedPane) tab.getComponentAt(index)).getComponent(i))
 												.save();
 											}
 										}
@@ -3371,10 +3319,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 	 */
 	public void saveLPN(String filename, String path) {
 		try {
-			if ((lpn && overwrite(root + GlobalConstants.separator + filename, filename))
-					|| (!lpn && overwrite(root + GlobalConstants.separator + filename.replace(".lpn", ".xml"),
+			if ((lpn && overwrite(root + File.separator + filename, filename))
+					|| (!lpn && overwrite(root + File.separator + filename.replace(".lpn", ".xml"),
 							filename.replace(".lpn", ".xml")))) {
-				BufferedWriter out = new BufferedWriter(new FileWriter(root + GlobalConstants.separator + filename));
+				BufferedWriter out = new BufferedWriter(new FileWriter(root + File.separator + filename));
 				BufferedReader in = new BufferedReader(new FileReader(path));
 				String str;
 				while ((str = in.readLine()) != null) {
@@ -3387,8 +3335,8 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				}
 				Translator t1 = new Translator();
 				try {
-					t1.convertLPN2SBML(root + GlobalConstants.separator + filename, "");
-					t1.setFilename(root + GlobalConstants.separator + filename.replace(".lpn", ".xml"));
+					t1.convertLPN2SBML(root + File.separator + filename, "");
+					t1.setFilename(root + File.separator + filename.replace(".lpn", ".xml"));
 					t1.outputSBML();
 					addToTree(filename.replace(".lpn", ".xml"));
 				} catch (BioSimException e) {
@@ -3408,7 +3356,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 		StringBuffer data = new StringBuffer();
 
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(directory + GlobalConstants.separator + filename));
+			BufferedReader in = new BufferedReader(new FileReader(directory + File.separator + filename));
 			String str;
 			while ((str = in.readLine()) != null) {
 				data.append(str + "\n");
@@ -3424,10 +3372,10 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 		while (sLineMatcher.find()) {
 			String sFilename = sLineMatcher.group(1);
 			try {
-				File newFile = new File(directory + GlobalConstants.separator + sFilename);
+				File newFile = new File(directory + File.separator + sFilename);
 				newFile.createNewFile();
 				FileOutputStream copyin = new FileOutputStream(newFile);
-				FileInputStream copyout = new FileInputStream(new File(root + GlobalConstants.separator + sFilename));
+				FileInputStream copyout = new FileInputStream(new File(root + File.separator + sFilename));
 				int read = copyout.read();
 				while (read != -1) {
 					copyin.write(read);
@@ -3904,8 +3852,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 	private void openLearnLHPN() {
 		boolean done = false;
 		for (int i = 0; i < tab.getTabCount(); i++) {
-			if (getTitleAt(i).equals(tree.getFile()
-					.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+			if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 				tab.setSelectedIndex(i);
 				done = true;
 			}
@@ -3934,17 +3881,15 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 								}
 							}
 						} else if (end.equals(".grf")) {
-							open = tree.getFile() + GlobalConstants.separator + list[i];
+							open = tree.getFile() + File.separator + list[i];
 						}
 					}
 				}
 			}
 
-			String lrnFile = tree.getFile() + GlobalConstants.separator
-					+ tree.getFile().split(
-							GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1]
-									+ ".lrn";
-			String lrnFile2 = tree.getFile() + GlobalConstants.separator + ".lrn";
+			String lrnFile = tree.getFile() + File.separator
+					+ GlobalConstants.getFilename(tree.getFile()) + ".lrn";
+			String lrnFile2 = tree.getFile() + File.separator + ".lrn";
 			Properties load = new Properties();
 			String learnFile = "";
 			try {
@@ -3960,8 +3905,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					in.close();
 					if (load.containsKey("genenet.file")) {
 						learnFile = load.getProperty("genenet.file");
-						learnFile = learnFile.split(
-								GlobalConstants.separator)[learnFile.split(GlobalConstants.separator).length - 1];
+						learnFile = GlobalConstants.getFilename(learnFile);
 					}
 				}
 				FileOutputStream out = new FileOutputStream(new File(lrnFile));
@@ -3981,7 +3925,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					break;
 				}
 			}
-			if (!(new File(root + GlobalConstants.separator + learnFile).exists())) {
+			if (!(new File(root + File.separator + learnFile).exists())) {
 				JOptionPane.showMessageDialog(frame, "Unable to open view because " + learnFile + " is missing.",
 						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -3995,30 +3939,25 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 			lrnTab.addTab("Advanced Options", learn.getAdvancedOptionsPanel());
 			lrnTab.getComponentAt(lrnTab.getComponents().length - 1).setName("Advanced Options");
 			Graph tsdGraph = new Graph(null, "Number of molecules",
-					tree.getFile().split(
-							GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1]
-									+ " data", "tsd.printer", tree.getFile(), "Time", this, open, log, null, true, true);
+					GlobalConstants.getFilename(tree.getFile())
+					+ " data", "tsd.printer", tree.getFile(), "Time", this, open, log, null, true, true);
 			lrnTab.addTab("TSD Graph", tsdGraph);
 			lrnTab.getComponentAt(lrnTab.getComponents().length - 1).setName("TSD Graph");
-			addTab(tree.getFile()
-					.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1],
-					lrnTab, null);
+			addTab(GlobalConstants.getFilename(tree.getFile()),	lrnTab, null);
 		}
 	}
 
 	private void openVerify() {
 		boolean done = false;
 		for (int i = 0; i < tab.getTabCount(); i++) {
-			if (getTitleAt(i).equals(tree.getFile()
-					.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1])) {
+			if (getTitleAt(i).equals(GlobalConstants.getFilename(tree.getFile()))) {
 				tab.setSelectedIndex(i);
 				done = true;
 			}
 		}
 		if (!done) {
-			String verName = tree.getFile()
-					.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1];
-			String verFile = tree.getFile() + GlobalConstants.separator + verName + ".ver";
+			String verName = GlobalConstants.getFilename(tree.getFile());
+			String verFile = tree.getFile() + File.separator + verName + ".ver";
 			Properties load = new Properties();
 			String verifyFile = "";
 			try {
@@ -4028,8 +3967,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					in.close();
 					if (load.containsKey("verification.file")) {
 						verifyFile = load.getProperty("verification.file");
-						verifyFile = verifyFile.split(
-								GlobalConstants.separator)[verifyFile.split(GlobalConstants.separator).length - 1];
+						verifyFile = GlobalConstants.getFilename(verifyFile);
 					}
 				}
 			} catch (Exception e) {
@@ -4050,11 +3988,9 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			VerificationView ver = new VerificationView(root + GlobalConstants.separator + verName, verName, "flag", log, this,
+			VerificationView ver = new VerificationView(root + File.separator + verName, verName, "flag", log, this,
 					true, false);
-			addTab(tree.getFile()
-					.split(GlobalConstants.separator)[tree.getFile().split(GlobalConstants.separator).length - 1], ver,
-					"Verification");
+			addTab(GlobalConstants.getFilename(tree.getFile()), ver, "Verification");
 		}
 	}
 
@@ -4095,13 +4031,13 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 		int exitValue = 1;
 		try {
 			if (System.getProperty("os.name").contentEquals("Linux")) {
-				reb2sacExecutable = "reb2sac.linux64";
+				Executables.reb2sacExecutable = "reb2sac.linux64";
 			} else if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-				reb2sacExecutable = "reb2sac.mac64";
+				Executables.reb2sacExecutable = "reb2sac.mac64";
 			} else {
-				reb2sacExecutable = "reb2sac.exe";
+				Executables.reb2sacExecutable = "reb2sac.exe";
 			}
-			ProcessBuilder ps = new ProcessBuilder(reb2sacExecutable, "");
+			ProcessBuilder ps = new ProcessBuilder(Executables.reb2sacExecutable, "");
 			Map<String, String> env = ps.environment();
 			if (System.getenv("BIOSIM") != null) {
 				env.put("BIOSIM", System.getenv("BIOSIM"));
@@ -4133,23 +4069,23 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				exitValue = reb2sac.waitFor();
 			}
 			if (exitValue != 255 && exitValue != -1) {
-				SBMLutilities.reb2sacFound = false;
+				Executables.reb2sacFound = false;
 			}
 		} catch (IOException e) {
-			SBMLutilities.reb2sacFound = false;
+			Executables.reb2sacFound = false;
 		} catch (InterruptedException e) {
-			SBMLutilities.reb2sacFound = false;
+			Executables.reb2sacFound = false;
 		}
 		exitValue = 1;
 		try {
 			if (System.getProperty("os.name").contentEquals("Linux")) {
-				geneNetExecutable = "GeneNet.linux64";
+				Executables.geneNetExecutable = "GeneNet.linux64";
 			} else if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-				geneNetExecutable = "GeneNet.mac64";
+				Executables.geneNetExecutable = "GeneNet.mac64";
 			} else {
-				geneNetExecutable = "GeneNet.exe";
+				Executables.geneNetExecutable = "GeneNet.exe";
 			}
-			ProcessBuilder ps = new ProcessBuilder(geneNetExecutable, "");
+			ProcessBuilder ps = new ProcessBuilder(Executables.geneNetExecutable, "");
 			Map<String, String> env = ps.environment();
 			if (System.getenv("BIOSIM") != null) {
 				env.put("BIOSIM", System.getenv("BIOSIM"));
@@ -4175,12 +4111,12 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 				exitValue = geneNet.waitFor();
 			}
 			if (exitValue != 255 && exitValue != 134 && exitValue != -1) {
-				SBMLutilities.geneNetFound = false;
+				Executables.geneNetFound = false;
 			}
 		} catch (IOException e) {
-			SBMLutilities.geneNetFound = false;
+			Executables.geneNetFound = false;
 		} catch (InterruptedException e) {
-			SBMLutilities.geneNetFound = false;
+			Executables.geneNetFound = false;
 		}
 		new lemaGui(lemaFlag, atacsFlag, libsbmlFound, lpnFlag);
 	}
@@ -4196,7 +4132,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 						} else {
 							((JTabbedPane) tab.getComponentAt(i)).setComponentAt(j,
 									new Graph(null, "Number of molecules", learnName + " data", "tsd.printer",
-											root + GlobalConstants.separator + learnName, "Time", this, null, log, null,
+											root + File.separator + learnName, "Time", this, null, log, null,
 											true, true));
 							((JTabbedPane) tab.getComponentAt(i)).getComponentAt(j).setName("TSD Graph");
 						}
@@ -4204,7 +4140,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 							.equals("Learn Options")) {
 						if (((JTabbedPane) tab.getComponentAt(i)).getComponentAt(j) instanceof LearnView) {
 						} else {
-							LearnViewLEMA learn = new LearnViewLEMA(root + GlobalConstants.separator + learnName, log, this);
+							LearnViewLEMA learn = new LearnViewLEMA(root + File.separator + learnName, log, this);
 							((JTabbedPane) tab.getComponentAt(i)).setComponentAt(j, learn);
 							((JTabbedPane) tab.getComponentAt(i)).setComponentAt(j + 1,
 									learn.getAdvancedOptionsPanel());
@@ -4221,9 +4157,9 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 	public void updateAsyncViews(String updatedFile) {
 		for (int i = 0; i < tab.getTabCount(); i++) {
 			String tab = this.getTitleAt(i);
-			String properties = root + GlobalConstants.separator + tab + GlobalConstants.separator + tab + ".ver";
-			String properties1 = root + GlobalConstants.separator + tab + GlobalConstants.separator + tab + ".synth";
-			String properties2 = root + GlobalConstants.separator + tab + GlobalConstants.separator + tab + ".lrn";
+			String properties = root + File.separator + tab + File.separator + tab + ".ver";
+			String properties1 = root + File.separator + tab + File.separator + tab + ".synth";
+			String properties2 = root + File.separator + tab + File.separator + tab + ".lrn";
 			if (new File(properties).exists()) {
 				VerificationView verify = ((VerificationView) (this.tab.getComponentAt(i)));
 				verify.reload();
@@ -4245,7 +4181,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 					p.load(load);
 					load.close();
 					if (p.containsKey("learn.file")) {
-						String[] getProp = p.getProperty("learn.file").split(GlobalConstants.separator);
+						String[] getProp = GlobalConstants.splitPath(p.getProperty("learn.file"));
 						check = getProp[getProp.length - 1];
 					} else {
 						check = "";
@@ -4262,7 +4198,7 @@ public class lemaGui extends Gui implements Observer, MouseListener, ActionListe
 							((DataManager) (learn.getComponentAt(j))).updateSpecies();
 						} else if (learn.getComponentAt(j).getName().equals("Learn Options")) {
 							((LearnViewLEMA) (learn.getComponentAt(j)))
-							.updateSpecies(root + GlobalConstants.separator + updatedFile);
+							.updateSpecies(root + File.separator + updatedFile);
 							((LearnViewLEMA) (learn.getComponentAt(j))).reload(updatedFile);
 						} else if (learn.getComponentAt(j).getName().contains("Graph")) {
 							((Graph) (learn.getComponentAt(j))).refresh();

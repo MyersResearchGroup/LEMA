@@ -15,7 +15,6 @@ package edu.utah.ece.async.lema.gui.verificationView;
 
 import javax.swing.*;
 
-import edu.utah.ece.async.ibiosim.dataModels.util.GlobalConstants;
 import edu.utah.ece.async.ibiosim.dataModels.util.exceptions.BioSimException;
 import edu.utah.ece.async.ibiosim.gui.modelEditor.util.PropertyList;
 import edu.utah.ece.async.ibiosim.gui.util.*;
@@ -59,7 +58,7 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 
 	private JTextField field;
 
-	private String directory, separator, root, absFile, oldBdd;
+	private String directory, root, absFile, oldBdd;
 
 	private JLabel preAbsLabel, loopAbsLabel, postAbsLabel;
 
@@ -71,8 +70,6 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 
 	private Log log;
 
-	private VerificationView verification;
-
 	private final AbstractionProperty absProperty;
 	
 	/**
@@ -81,24 +78,22 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 	 * then displays the frame.
 	 */
 	public AbstractionPanel(String directory, VerificationView verification, Log log) {
-		separator = GlobalConstants.separator;
 		this.directory = directory;
 		this.log = log;
-		this.verification = verification;
 		this.setLayout(new BorderLayout());
 		absFile = verification.getVerName() + ".abs";
 		verification.copyFile();
 		absProperty = new AbstractionProperty();
 		LPN lhpn = new LPN();
 		try {
-      lhpn.load(directory + separator + verification.verifyFile);
+			lhpn.load(directory + File.separator + verification.verifyFile);
 
-      createGui(lhpn);
-    } catch (BioSimException e) {
-      JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(),
-        JOptionPane.ERROR_MESSAGE);
-      e.printStackTrace();
-    }
+			createGui(lhpn);
+		} catch (BioSimException e) {
+			JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(),
+					JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
 	}
 	
     public void createGui(LPN lhpn) {
@@ -229,22 +224,21 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 		change = false;
 	}
 
-	public AbstractionPanel(String directory, String lpnFile, Log log) {
-		separator = GlobalConstants.separator;
-		this.directory = directory;
-		this.log = log;
-		this.setLayout(new BorderLayout());
-		this.setMaximumSize(new Dimension(300, 150));
-		this.absProperty = new AbstractionProperty();
-		LPN lhpn = new LPN();
-		try {
-      lhpn.load(directory + separator + lpnFile);
-      createGui(lhpn);
-    } catch (BioSimException e) {
-      JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(),
-        JOptionPane.ERROR_MESSAGE);
+    public AbstractionPanel(String directory, String lpnFile, Log log) {
+    	this.directory = directory;
+    	this.log = log;
+    	this.setLayout(new BorderLayout());
+    	this.setMaximumSize(new Dimension(300, 150));
+    	this.absProperty = new AbstractionProperty();
+    	LPN lhpn = new LPN();
+    	try {
+    		lhpn.load(directory + File.separator + lpnFile);
+    		createGui(lhpn);
+    	} catch (BioSimException e) {
+    		JOptionPane.showMessageDialog(lemaGui.frame, e.getMessage(), e.getTitle(),
+    				JOptionPane.ERROR_MESSAGE);
+    	}
     }
-	}
 	/*
 		// Creates the interesting species JList
 		listModel = new DefaultListModel();
@@ -618,12 +612,10 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 			if (!iterField.getText().equals("")) {
 				prop.setProperty("abstraction.factor", iterField.getText());
 			}
-			FileOutputStream out = new FileOutputStream(new File(directory
-					+ separator + absFile));
+			FileOutputStream out = new FileOutputStream(new File(directory + File.separator + absFile));
 			prop.store(out, absFile);
 			out.close();
-			log.addText("Saving Parameter File:\n" + directory + separator
-					+ absFile + "\n");
+			log.addText("Saving Parameter File:\n" + directory + File.separator	+ absFile + "\n");
 			change = false;
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(lemaGui.frame,
@@ -633,11 +625,9 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 		if (componentList != null) {
 			for (String s : componentList.getItems()) {
 				try {
-					new File(directory + separator + s).createNewFile();
-					FileInputStream in = new FileInputStream(new File(root
-							+ separator + s));
-					FileOutputStream out = new FileOutputStream(new File(
-							directory + separator + s));
+					new File(directory + File.separator + s).createNewFile();
+					FileInputStream in = new FileInputStream(new File(root + File.separator + s));
+					FileOutputStream out = new FileOutputStream(new File(directory + File.separator + s));
 					int read = in.read();
 					while (read != -1) {
 						out.write(read);
@@ -661,8 +651,8 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 
 	public void viewLog() {
 		try {
-			if (new File(directory + separator + "run.log").exists()) {
-				File log = new File(directory + separator + "run.log");
+			if (new File(directory + File.separator + "run.log").exists()) {
+				File log = new File(directory + File.separator + "run.log");
 				BufferedReader input = new BufferedReader(new FileReader(log));
 				String line = null;
 				JTextArea messageArea = new JTextArea();

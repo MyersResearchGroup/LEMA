@@ -86,7 +86,6 @@ import edu.utah.ece.async.lema.gui.learnView.LearnViewLEMA;
 
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerPlugin;
-import edu.utah.ece.async.ibiosim.analysis.Run;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.SBMLutilities;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;

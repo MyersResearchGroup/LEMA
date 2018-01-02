@@ -43,8 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -56,7 +54,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -133,6 +130,14 @@ import edu.utah.ece.async.lema.verification.platu.platuLpn.io.PlatuGrammarParser
 public class lemaGui extends Gui implements BioObserver, MouseListener, ActionListener, MouseMotionListener, MouseWheelListener {
 
 	private static final String lemaVersion = "2.9.5";
+	private JMenuItem newVhdl, newS, newInst, newLhpn, newProperty, newSpice;
+	private JMenuItem importS, importInst, importVhdl, importSpice, importProperty;
+	
+	protected JMenuItem viewTrace, viewCoverage, viewLHPN, saveAsVerilog, convertToLPN;
+	
+	protected JMenuItem viewLearnedModel, viewLog;
+
+	
 	private boolean lpn;
 
 	/**
@@ -313,7 +318,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		viewCoverage = new JMenuItem("Coverage Report");
 		viewLHPN = new JMenuItem("Model");
 		viewLearnedModel = new JMenuItem("Learned Model");
-		viewModBrowser = new JMenuItem("Model in Browser");
 		createAnal = new JMenuItem("Analysis Tool");
 		createLearn = new JMenuItem("Learn Tool");
 		createSbml = new JMenuItem("Create SBML File");
@@ -390,7 +394,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		viewCoverage.addActionListener(this);
 		viewLHPN.addActionListener(this);
 		viewLearnedModel.addActionListener(this);
-		viewModBrowser.addActionListener(this);
 		createAnal.addActionListener(this);
 		createLearn.addActionListener(this);
 		createSbml.addActionListener(this);
@@ -401,7 +404,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		run.setActionCommand("run");
 		refresh.setActionCommand("refresh");
 		viewLHPN.setActionCommand("viewModel");
-		viewModBrowser.setActionCommand("browse");
 		createLearn.setActionCommand("createLearn");
 		createSbml.setActionCommand("createSBML");
 		createVer.setActionCommand("createVerify");
@@ -508,7 +510,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		viewLHPN.setEnabled(false);
 		viewModel.setEnabled(false);
 		viewLearnedModel.setEnabled(false);
-		viewModBrowser.setEnabled(false);
 		createAnal.setEnabled(false);
 		createLearn.setEnabled(false);
 		createSbml.setEnabled(false);
@@ -658,9 +659,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		}
 		openRecent.addSeparator();
 		openRecent.add(clearRecent);
-		SBMLLevelVersion = "L3V1";
-		GlobalConstants.SBML_LEVEL = 3;
-		GlobalConstants.SBML_VERSION = 1;
+		SBMLLevelVersion = "L3V2";
 
 		// Packs the frame and displays it
 		mainPanel = new JPanel(new BorderLayout());
@@ -766,9 +765,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		uOfUPanel.add(name, "North");
 		uOfUPanel.add(version, "Center");
 		uOfUPanel.add(uOfU, "South");
-		aboutPanel.add(new javax.swing.JLabel(ResourceManager.getImageIcon("LEMA.png")),
-				"North");
-		// aboutPanel.add(bioSim, "North");
+		aboutPanel.add(new javax.swing.JLabel(ResourceManager.getImageIcon("LEMA.png")),"North");
 		aboutPanel.add(uOfUPanel, "Center");
 		aboutPanel.add(buttons, "South");
 		f.setContentPane(aboutPanel);
@@ -4487,7 +4484,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 	}
 
 	private void enableTreeMenu() {
-		viewModBrowser.setEnabled(false);
 		createAnal.setEnabled(false);
 		createLearn.setEnabled(false);
 		createVer.setEnabled(false);
@@ -4502,7 +4498,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		if (tree.getFile() != null) {
 			if (tree.getFile().equals(root)) {
 			} else if (tree.getFile().endsWith(".sbml") || tree.getFile().endsWith(".xml")) {
-				viewModBrowser.setEnabled(true);
 				createAnal.setEnabled(true);
 				createAnal.setActionCommand("createAnalysis");
 				createLearn.setEnabled(true);

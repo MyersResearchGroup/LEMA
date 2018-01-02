@@ -146,11 +146,10 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 	 * 
 	 * @throws Exception
 	 */
-	public lemaGui(boolean lema, boolean atacs, boolean libsbmlFound, boolean lpn) {
-		super(true,false,libsbmlFound);
+	public lemaGui(boolean libsbmlFound, boolean lpn) {
+		super(libsbmlFound);
 		this.lpn = lpn;
 		Executables.libsbmlFound = libsbmlFound;
-		async = lema || atacs;
 		Thread.setDefaultUncaughtExceptionHandler(new Utility.UncaughtExceptionHandler());
 		ENVVAR = System.getenv("LEMA");
 		System.setProperty("software.running", "LEMA Version " + lemaVersion);
@@ -300,11 +299,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		exportAvi = new JMenuItem("AVI");
 		exportMp4 = new JMenuItem("MP4");
 		save = new JMenuItem("Save");
-		if (async) {
-			saveModel = new JMenuItem("Save Learned LPN");
-		} else {
-			saveModel = new JMenuItem("Save Learned Model");
-		}
+		saveModel = new JMenuItem("Save Learned LPN");
 		saveAsVerilog = new JMenuItem("Save as Verilog");
 		saveAsVerilog.addActionListener(this);
 		saveAsVerilog.setActionCommand("saveAsVerilog");
@@ -557,10 +552,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		file.add(saveAs);
 		file.add(saveAsVerilog);
 		file.add(saveAll);
-		if (!async) {
-			file.addSeparator();
-			file.add(refresh);
-		}
 		file.addSeparator();
 		file.add(importMenu);
 		importMenu.add(importVhdl);
@@ -662,9 +653,9 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 
 		// Packs the frame and displays it
 		mainPanel = new JPanel(new BorderLayout());
-		tree = new FileTree(null, this, lema, atacs, lpn);
+		tree = new FileTree(null, this, true, false, lpn);
 
-		EditPreferences editPreferences = new EditPreferences(frame, async);
+		EditPreferences editPreferences = new EditPreferences(frame, true);
 		editPreferences.setDefaultPreferences();
 		tree.setExpandibleIcons(!IBioSimPreferences.INSTANCE.isPlusMinusIconsEnabled());
 
@@ -1233,7 +1224,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		// if the open popup menu is selected on a sim directory
 		else if (e.getActionCommand().equals("openSim")) {
 			try {
-				openAnalysisView(tree.getFile());
+				openAnalysisView(tree.getFile(), true);
 			} catch (Exception e0) {
 			}
 		} else if (e.getActionCommand().equals("openLearn")) {
@@ -1295,7 +1286,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			addToTree(theFile.replace(".prop", ".xml"));
 		} else if (e.getActionCommand().equals("createAnalysis")) {
 			try {
-				createAnalysisView(tree.getFile());
+				createAnalysisView(tree.getFile(),true);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(frame, "You must select a valid model file for analysis.", "Error",
@@ -1355,15 +1346,15 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		} 
 		else if (e.getActionCommand().equals("modelEditor")) {
 			// if the edit popup menu is selected on a dot file
-			openModelEditor(false);
+			openModelEditor(false, true);
 		}
 		// if the edit popup menu is selected on a dot file
 		else if (e.getActionCommand().equals("modelTextEditor")) {
-			openModelEditor(true);
+			openModelEditor(true, true);
 		}
 		// if the edit popup menu is selected on an sbml file
 		else if (e.getActionCommand().equals("sbmlEditor")) {
-			openSBML(tree.getFile());
+			openSBML(tree.getFile(), true);
 		} else if (e.getActionCommand().equals("stateGraph")) {
 			try {
 				String directory = root + File.separator + getTitleAt(tab.getSelectedIndex());
@@ -2156,7 +2147,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		// if the open project menu item is selected
 		else if (e.getSource() == pref) {
 			PreferencesDialog.showPreferences(frame);
-			EditPreferences editPreferences = new EditPreferences(frame, async);
+			EditPreferences editPreferences = new EditPreferences(frame, true);
 			editPreferences.preferences();
 			tree.setExpandibleIcons(!IBioSimPreferences.INSTANCE.isPlusMinusIconsEnabled());
 		} else if (e.getSource() == clearRecent) {
@@ -2171,7 +2162,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		}
 		// if the new circuit model menu item is selected
 		else if (e.getSource() == newSBMLModel) {
-			createModel(false);
+			createModel(false, true);
 		} 
 		// if the new vhdl menu item is selected
 		else if (e.getSource() == newVhdl) {
@@ -3778,7 +3769,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			if (tree.getFile().length() >= 5 && tree.getFile().substring(tree.getFile().length() - 5).equals(".sbml")
 					|| tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".xml")) {
-				openSBML(tree.getFile());
+				openSBML(tree.getFile(), true);
 			} else if (tree.getFile().length() >= 4
 					&& tree.getFile().substring(tree.getFile().length() - 4).equals(".vhd")) {
 				openModel("VHDL");
@@ -3825,7 +3816,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 				}
 				if (sim) {
 					try {
-						openAnalysisView(tree.getFile());
+						openAnalysisView(tree.getFile(),true);
 					} catch (Exception e0) {
 						e0.printStackTrace();
 					}
@@ -4000,14 +3991,10 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			}
 		}
 
-		boolean lemaFlag = false, atacsFlag = false, libsbmlFound = true, lpnFlag = false;
+		boolean libsbmlFound = true, lpnFlag = false;
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
-				if (args[i].equals("-lema")) {
-					lemaFlag = true;
-				} else if (args[i].equals("-atacs")) {
-					atacsFlag = true;
-				} else if (args[i].equals("-lpn")) {
+				if (args[i].equals("-lpn")) {
 					lpnFlag = true;
 				}
 			}
@@ -4114,7 +4101,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		} catch (InterruptedException e) {
 			Executables.geneNetFound = false;
 		}
-		new lemaGui(lemaFlag, atacsFlag, libsbmlFound, lpnFlag);
+		new lemaGui(libsbmlFound, lpnFlag);
 	}
 
 	public void refreshLearn(String learnName) {

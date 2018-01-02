@@ -17,6 +17,7 @@ import java.awt.AWTError;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
@@ -41,6 +42,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -83,6 +85,7 @@ import edu.utah.ece.async.lema.gui.learnView.LearnViewLEMA;
 
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerPlugin;
+import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.SBMLutilities;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;
@@ -868,7 +871,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			sedmlDocument = new SEDMLDocument(1, 2);
 			writeSEDMLDocument();
 
-			refresh();
+			refresh(true,false,lpn);
 			tab.removeAll();
 			addRecentProject(filename);
 
@@ -965,7 +968,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 					currentProjectId = GlobalConstants.getFilename(root);
 					readSEDMLDocument();
 					readSBOLDocument();
-					refresh();
+					refresh(true,false,lpn);
 					addToTree(currentProjectId + ".sbol");
 					tab.removeAll();
 					addRecentProject(projDir);
@@ -3985,6 +3988,8 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 	 * This is the main method. It excecutes the BioSim GUI FrontEnd program.
 	 */
 	public static void main(String args[]) {
+		String message = "";
+
 		if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
 			if (System.getenv("DDLD_LIBRARY_PATH") == null) {
 				System.out.println("DDLD_LIBRARY_PATH is missing");
@@ -3999,107 +4004,43 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 				}
 			}
 		}
-		try {
-			System.loadLibrary("sbmlj");
-			// For extra safety, check that the jar file is in the classpath.
-			Class.forName("org.sbml.libsbml.libsbml");
-		} catch (UnsatisfiedLinkError e) {
-			libsbmlFound = false;
-		} catch (ClassNotFoundException e) {
-			libsbmlFound = false;
-		} catch (SecurityException e) {
-			libsbmlFound = false;
-		}
-		Runtime.getRuntime();
-		int exitValue = 1;
-		try {
-			if (System.getProperty("os.name").contentEquals("Linux")) {
-				Executables.reb2sacExecutable = "reb2sac.linux64";
-			} else if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-				Executables.reb2sacExecutable = "reb2sac.mac64";
-			} else {
-				Executables.reb2sacExecutable = "reb2sac.exe";
+		Executables.checkExecutables();
+		ArrayList<String> errors = Executables.getErrors();
+		if (errors.size()>0) {
+			message = "<html>WARNING: Some external components are missing or have problems.<br>" +
+					"You may continue but with some loss of functionality.";	
+			System.err.println("WARNING: Some external components are missing or have problems.\n" +
+					"You may continue but with some loss of functionality.");	
+			for (int i = 0; i < errors.size(); i++) {
+				message += "<br>" + errors.get(i);
+				System.err.println(errors.get(i));
 			}
-			ProcessBuilder ps = new ProcessBuilder(Executables.reb2sacExecutable, "");
-			Map<String, String> env = ps.environment();
-			if (System.getenv("BIOSIM") != null) {
-				env.put("BIOSIM", System.getenv("BIOSIM"));
+			message += "<br></html>";
+
+			JPanel msgPanel = new JPanel(new BorderLayout());
+			JPanel checkPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+			JLabel msg = new JLabel(message);
+			msgPanel.add(msg, BorderLayout.NORTH);
+			JCheckBox jcb = new JCheckBox("Do not ask me again");
+			jcb.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					// if-else statement below is used to update checkbox in settings whenever this one is changed.
+					if (jcb.isSelected()) {
+						Preferences.userRoot().put("lema.ignore.external.warnings", "true");
+					} 
+
+				}
+			});
+			checkPanel.add(jcb);
+			msgPanel.add(checkPanel, BorderLayout.SOUTH);
+			if (!Preferences.userRoot().get("lema.ignore.external.warnings", "").equals("true")) {
+				int value = JOptionPane.showConfirmDialog(null , msgPanel , "Problems with External Components" , JOptionPane.OK_CANCEL_OPTION);
+				if (value == JOptionPane.CANCEL_OPTION) return;
 			}
-			if (System.getenv("LEMA") != null) {
-				env.put("LEMA", System.getenv("LEMA"));
-			}
-			if (System.getenv("ATACSGUI") != null) {
-				env.put("ATACSGUI", System.getenv("ATACSGUI"));
-			}
-			if (System.getenv("LD_LIBRARY_PATH") != null) {
-				env.put("LD_LIBRARY_PATH", System.getenv("LD_LIBRARY_PATH"));
-			}
-			if (System.getenv("DDLD_LIBRARY_PATH") != null) {
-				env.put("DYLD_LIBRARY_PATH", System.getenv("DDLD_LIBRARY_PATH"));
-			}
-			if (System.getenv("PATH") != null) {
-				env.put("PATH", System.getenv("PATH"));
-			}
-			envp = new String[env.size()];
-			int i = 0;
-			for (String envVar : env.keySet()) {
-				envp[i] = envVar + "=" + env.get(envVar);
-				i++;
-			}
-			ps.redirectErrorStream(true);
-			Process reb2sac = ps.start();
-			if (reb2sac != null) {
-				exitValue = reb2sac.waitFor();
-			}
-			if (exitValue != 255 && exitValue != -1) {
-				Executables.reb2sacFound = false;
-			}
-		} catch (IOException e) {
-			Executables.reb2sacFound = false;
-		} catch (InterruptedException e) {
-			Executables.reb2sacFound = false;
-		}
-		exitValue = 1;
-		try {
-			if (System.getProperty("os.name").contentEquals("Linux")) {
-				Executables.geneNetExecutable = "GeneNet.linux64";
-			} else if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-				Executables.geneNetExecutable = "GeneNet.mac64";
-			} else {
-				Executables.geneNetExecutable = "GeneNet.exe";
-			}
-			ProcessBuilder ps = new ProcessBuilder(Executables.geneNetExecutable, "");
-			Map<String, String> env = ps.environment();
-			if (System.getenv("BIOSIM") != null) {
-				env.put("BIOSIM", System.getenv("BIOSIM"));
-			}
-			if (System.getenv("LEMA") != null) {
-				env.put("LEMA", System.getenv("LEMA"));
-			}
-			if (System.getenv("ATACSGUI") != null) {
-				env.put("ATACSGUI", System.getenv("ATACSGUI"));
-			}
-			if (System.getenv("LD_LIBRARY_PATH") != null) {
-				env.put("LD_LIBRARY_PATH", System.getenv("LD_LIBRARY_PATH"));
-			}
-			if (System.getenv("DDLD_LIBRARY_PATH") != null) {
-				env.put("DYLD_LIBRARY_PATH", System.getenv("DDLD_LIBRARY_PATH"));
-			}
-			if (System.getenv("PATH") != null) {
-				env.put("PATH", System.getenv("PATH"));
-			}
-			ps.redirectErrorStream(true);
-			Process geneNet = ps.start();
-			if (geneNet != null) {
-				exitValue = geneNet.waitFor();
-			}
-			if (exitValue != 255 && exitValue != 134 && exitValue != -1) {
-				Executables.geneNetFound = false;
-			}
-		} catch (IOException e) {
-			Executables.geneNetFound = false;
-		} catch (InterruptedException e) {
-			Executables.geneNetFound = false;
+		} else {
+			Preferences.userRoot().put("lema.ignore.external.warnings", "false");
 		}
 		new lemaGui(libsbmlFound, lpnFlag);
 	}

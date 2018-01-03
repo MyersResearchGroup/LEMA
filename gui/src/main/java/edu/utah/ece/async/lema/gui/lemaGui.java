@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -78,15 +77,11 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.jlibsedml.SEDMLDocument;
-import org.sbolstandard.core2.SBOLDocument;
 
 // TODO: keep these
 import edu.utah.ece.async.lema.gui.learnView.LearnViewLEMA;
 
 
-import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerPlugin;
-import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
-import edu.utah.ece.async.ibiosim.dataModels.biomodel.util.SBMLutilities;
 import edu.utah.ece.async.lema.verification.lpn.LPN;
 import edu.utah.ece.async.lema.verification.lpn.Lpn2verilog;
 import edu.utah.ece.async.lema.verification.lpn.Translator;
@@ -1820,14 +1815,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 				((LHPNEditor) comp).save();
 			} else if (comp instanceof ModelEditor) {
 				((ModelEditor) comp).save(false);
-			} else if (comp instanceof SBOLDesignerPlugin) {
-				try {
-					((SBOLDesignerPlugin) comp).saveSBOL();
-					readSBOLDocument();
-					log.addText("Saving SBOL file: " + ((SBOLDesignerPlugin) comp).getFileName() + "\n");
-				} catch (Exception e1) {
-					JOptionPane.showMessageDialog(frame, "Error Saving SBOL File.", "Error", JOptionPane.ERROR_MESSAGE);
-				}
 			} else if (comp instanceof Graph) {
 				((Graph) comp).save();
 			} else if (comp instanceof VerificationView) {
@@ -1928,22 +1915,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 				} else {
 					((ModelEditor) comp).saveAs(newName);
 				}
-			} else if (comp instanceof SBOLDesignerPlugin) {
-				String oldName = ((SBOLDesignerPlugin) comp).getFileName();
-				String newName = JOptionPane.showInputDialog(frame, "Enter SBOL file name:", "SBOL File Name",
-						JOptionPane.PLAIN_MESSAGE);
-				if (!newName.endsWith(".sbol"))
-					newName += ".sbol";
-				((SBOLDesignerPlugin) comp).setFileName(newName);
-				try {
-					((SBOLDesignerPlugin) comp).saveSBOL();
-					readSBOLDocument();
-				} catch (Exception e1) {
-					JOptionPane.showMessageDialog(frame, "Error Saving SBOL File.", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-				addToTree(newName);
-				updateTabName(oldName.replace(".sbol", ""), newName.replace(".sbol", ""));
-				log.addText("Saving SBOL file: " + ((SBOLDesignerPlugin) comp).getFileName() + "\n");
 			} else if (comp instanceof Graph) {
 				((Graph) comp).saveAs();
 			} else if (comp instanceof VerificationView) {
@@ -2133,8 +2104,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			} else if (comp instanceof ModelEditor) {
 				((ModelEditor) comp).exportSBML();
 				// TODO: should give choice of SBML or SBOL
-			} else if (comp instanceof SBOLDesignerPlugin) {
-				exportSBOL((SBOLDesignerPlugin) comp, "SBOL");
 			} else if (comp instanceof JTabbedPane) {
 				Component component = ((JTabbedPane) comp).getSelectedComponent();
 				if (component instanceof Graph) {
@@ -2968,61 +2937,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			} else {
 				return 3;
 			}
-		} else if (tab.getComponentAt(index).getName().contains("SBOL Designer")) {
-			SBOLDesignerPlugin editor = (SBOLDesignerPlugin) tab.getComponentAt(index);
-			if (editor.isModified()) {
-				if (autosave == 0) {
-					int value = JOptionPane.showOptionDialog(frame,
-							"Do you want to save changes to " + getTitleAt(index) + "?", "Save Changes",
-							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, OPTIONS, OPTIONS[0]);
-					if (value == YES_OPTION) {
-						try {
-							editor.saveSBOL();
-							readSBOLDocument();
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(frame, "Error Saving SBOL File.", "Error",
-									JOptionPane.ERROR_MESSAGE);
-						}
-						log.addText("Saving SBOL file: " + editor.getFileName() + "\n");
-						return 1;
-					} else if (value == NO_OPTION) {
-						return 1;
-					} else if (value == CANCEL_OPTION) {
-						return 0;
-					} else if (value == YES_TO_ALL_OPTION) {
-						try {
-							editor.saveSBOL();
-							readSBOLDocument();
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(frame, "Error Saving SBOL File.", "Error",
-									JOptionPane.ERROR_MESSAGE);
-						}
-						log.addText("Saving SBOL file: " + editor.getFileName() + "\n");
-						return 2;
-					} else if (value == NO_TO_ALL_OPTION) {
-						return 3;
-					}
-				} else if (autosave == 1) {
-					try {
-						editor.saveSBOL();
-						readSBOLDocument();
-					} catch (Exception e) {
-						JOptionPane.showMessageDialog(frame, "Error Saving SBOL File.", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
-					log.addText("Saving SBOL file: " + editor.getFileName() + "\n");
-					return 2;
-				} else {
-					return 3;
-				}
-			}
-			if (autosave == 0) {
-				return 1;
-			} else if (autosave == 1) {
-				return 2;
-			} else {
-				return 3;
-			}
 		} else if (tab.getComponentAt(index).getName().contains("Graph")
 				|| tab.getComponentAt(index).getName().equals("Histogram")) {
 			if (tab.getComponentAt(index) instanceof Graph) {
@@ -3805,7 +3719,6 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 				openHistogram();
 			} else if (new File(tree.getFile()).isDirectory() && !tree.getFile().equals(root)) {
 				boolean sim = false;
-				boolean synth = false;
 				boolean ver = false;
 				boolean learn = false;
 				for (String s : new File(tree.getFile()).list()) {
@@ -4260,13 +4173,9 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		} else if (comp instanceof JTabbedPane) {
 			Component component = ((JTabbedPane) comp).getSelectedComponent();
 			Component learnComponent = null;
-			Boolean learn = false;
 			Boolean learnLHPN = false;
 			for (Component c : ((JTabbedPane) comp).getComponents()) {
-				if (c instanceof LearnView) {
-					learn = true;
-					learnComponent = c;
-				} else if (c instanceof LearnViewLEMA) {
+				if (c instanceof LearnViewLEMA) {
 					learnLHPN = true;
 					learnComponent = c;
 				}

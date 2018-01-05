@@ -144,10 +144,9 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 	 * 
 	 * @throws Exception
 	 */
-	public lemaGui(boolean libsbmlFound, boolean lpn) {
-		super(libsbmlFound);
+	public lemaGui(boolean lpn) {
+		super();
 		this.lpn = lpn;
-		Executables.libsbmlFound = libsbmlFound;
 		Thread.setDefaultUncaughtExceptionHandler(new Utility.UncaughtExceptionHandler());
 		ENVVAR = System.getenv("LEMA");
 		System.setProperty("software.running", "LEMA Version " + lemaVersion);
@@ -3909,7 +3908,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 			}
 		}
 
-		boolean libsbmlFound = true, lpnFlag = false;
+		boolean lpnFlag = false;
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
 				if (args[i].equals("-lpn")) {
@@ -3955,7 +3954,7 @@ public class lemaGui extends Gui implements BioObserver, MouseListener, ActionLi
 		} else {
 			Preferences.userRoot().put("lema.ignore.external.warnings", "false");
 		}
-		new lemaGui(libsbmlFound, lpnFlag);
+		new lemaGui(lpnFlag);
 	}
 
 	public void refreshLearn(String learnName) {

@@ -76,8 +76,9 @@ public class AbstractionPanel extends JPanel implements ActionListener, Runnable
 	 * This is the constructor for the Verification class. It initializes all
 	 * the input fields, puts them on panels, adds the panels to the frame, and
 	 * then displays the frame.
+	 * @throws BioSimException 
 	 */
-	public AbstractionPanel(String directory, VerificationView verification, Log log) {
+	public AbstractionPanel(String directory, VerificationView verification, Log log) throws BioSimException {
 		this.directory = directory;
 		this.log = log;
 		this.setLayout(new BorderLayout());

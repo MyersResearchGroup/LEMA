@@ -32,7 +32,7 @@
 	<modules>
 		<module>gui</module>
 		<module>learn</module>
-		<module>verification</module>
+		
 	</modules>
 
 	<build>

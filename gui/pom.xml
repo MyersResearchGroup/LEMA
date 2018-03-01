@@ -21,7 +21,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>edu.utah.ece.async.LEMA.gui.Gui</mainClass>
+									<mainClass>edu.utah.ece.async.lema.gui.lemaGui</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>

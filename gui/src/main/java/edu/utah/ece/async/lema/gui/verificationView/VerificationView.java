@@ -1130,7 +1130,13 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 
 	@Override
 	public void run() {
-		copyFile();
+		try {
+			copyFile();
+		}
+		catch (BioSimException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
 		String[] array = GlobalConstants.splitPath(directory);
 		String tempDir = "";
 		String lpnFileName = "";
@@ -3042,7 +3048,7 @@ public class VerificationView extends JPanel implements ActionListener, Runnable
 		return false;
 	}
 
-	public void copyFile() {
+	public void copyFile() throws BioSimException {
 		String[] tempArray = GlobalConstants.splitPath(verifyFile);
 		String sourceFile = tempArray[tempArray.length - 1];
 		String[] workArray = GlobalConstants.splitPath(directory);
